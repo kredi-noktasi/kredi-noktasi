@@ -1,0 +1,1673 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Çoklu Kredi Paneli</title>
+<style>
+  :root{
+    --bg0:#050914; --bg1:#0e1a33;
+    --text:#e6edf6; --muted:rgba(230,237,246,.72);
+    --g1:#2ecc71; --g2:#3df58a;
+    --y1:#f1c40f; --y2:#ffe066;
+    --r1:#e74c3c; --r2:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; color:var(--text);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background: radial-gradient(1200px 700px at 50% 110%, var(--bg1) 0%, var(--bg0) 62%);
+  }
+  .wrap{max-width:1280px;margin:auto;padding:22px}
+  .card{
+    background:linear-gradient(180deg,#0c1426,#070c1a);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:22px;
+    padding:22px;
+    box-shadow:0 25px 80px rgba(0,0,0,.55);
+  }
+  .topbar{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+  h1{margin:0;font-size:20px;letter-spacing:.2px}
+  .sub{margin-top:6px;font-size:13px;color:var(--muted);line-height:1.45}
+  .actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .btn{
+    padding:12px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.10);
+    background:rgba(10,16,32,.55);
+    color:var(--text);font-weight:900;cursor:pointer;
+    backdrop-filter: blur(6px);
+  }
+  .btn.primary{
+    border:0;
+    background:linear-gradient(135deg,#3b6cff,#1f4bff);
+    box-shadow:0 12px 34px rgba(59,108,255,.35);
+  }
+
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+  .col-3{grid-column:span 3}
+  .col-12{grid-column:span 12}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  input,select{
+    width:100%;padding:14px;border-radius:14px;
+    background:#070c1a;color:var(--text);
+    border:1px solid rgba(255,255,255,.10);
+    outline:none;
+  }
+  input:focus,select:focus{ border-color:rgba(116,188,255,.9); box-shadow:0 0 0 3px rgba(116,188,255,.15); }
+
+  .result-wrap{
+    margin-top:22px;
+    padding:26px;
+    border-radius:26px;
+    border:1px solid rgba(255,255,255,.08);
+    background:linear-gradient(180deg,#0f1b35,#070c1a);
+    box-shadow:0 28px 90px rgba(0,0,0,.62);
+    position:relative;
+    overflow:hidden;
+  }
+  .result-wrap::before{
+    content:"";
+    position:absolute; inset:-2px;
+    background: radial-gradient(700px 300px at 20% 10%, rgba(255,255,255,.07), transparent 55%);
+    pointer-events:none;
+  }
+  .result-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .result-title{font-size:18px;font-weight:1000;letter-spacing:.35px}
+  .best{
+    font-size:13px;font-weight:900;
+    padding:10px 14px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(7,12,26,.65);
+  }
+
+  .badges{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0 16px}
+  .badge{
+    display:flex; align-items:center; gap:10px;
+    padding:12px 16px;border-radius:999px;
+    font-weight:1000;font-size:14px;
+    background:rgba(7,12,26,.70);
+    border:1px solid rgba(255,255,255,.12);
+  }
+  .badge .k{opacity:.75;font-size:12px;font-weight:900}
+  .badge .v{font-size:14px;font-weight:1100}
+  .badge .icon{font-size:16px;line-height:1}
+
+  .bar{height:18px;border-radius:999px;background:#1a2238;overflow:hidden;box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);}
+  .bar span{display:block;height:100%;width:0%;transition:width .55s cubic-bezier(.2,.9,.2,1);}
+  .green{background:linear-gradient(90deg,var(--g1),var(--g2))}
+  .yellow{background:linear-gradient(90deg,var(--y1),var(--y2))}
+  .red{background:linear-gradient(90deg,var(--r1),var(--r2))}
+
+  .big{margin-top:18px;text-align:center;font-weight:1100;font-size:38px;letter-spacing:.2px}
+  .big small{display:block;margin-bottom:4px;font-size:14px;font-weight:900;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;}
+  .explain{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.55;text-align:center}
+
+  .tone-green{ background:linear-gradient(180deg, rgba(46,204,113,.14), #070c1a 40%), linear-gradient(180deg,#0f1b35,#070c1a); }
+  .tone-yellow{ background:linear-gradient(180deg, rgba(241,196,15,.14), #070c1a 40%), linear-gradient(180deg,#0f1b35,#070c1a); }
+  .tone-red{ background:linear-gradient(180deg, rgba(231,76,60,.14), #070c1a 40%), linear-gradient(180deg,#0f1b35,#070c1a); }
+
+  @keyframes pulseGlow {
+    0%{ box-shadow:0 0 0 rgba(46,204,113,0), 0 28px 90px rgba(0,0,0,.62); transform:translateY(0);}
+    50%{ box-shadow:0 0 40px rgba(46,204,113,.22), 0 30px 95px rgba(0,0,0,.66); transform:translateY(-1px);}
+    100%{ box-shadow:0 0 0 rgba(46,204,113,0), 0 28px 90px rgba(0,0,0,.62); transform:translateY(0);}
+  }
+  @keyframes wobble {0%{transform:rotate(0)}25%{transform:rotate(-.5deg)}50%{transform:rotate(.6deg)}75%{transform:rotate(-.4deg)}100%{transform:rotate(0)}}
+  @keyframes shake {0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+  .anim-onay{ animation:pulseGlow 1.6s ease-in-out infinite; }
+  .anim-gm{ animation:wobble .9s ease-in-out infinite; }
+  .anim-ret{ animation:shake .55s ease-in-out 2; }
+
+  body.tv .wrap{ max-width: 1600px; padding: 18px; }
+  body.tv h1{ font-size:26px; }
+  body.tv .sub{ font-size:16px; }
+  body.tv label{ font-size:14px; }
+  body.tv input, body.tv select{ padding:18px; font-size:18px; border-radius:18px; }
+  body.tv .btn{ padding:14px 18px; font-size:16px; border-radius:16px; }
+  body.tv .result-title{ font-size:22px; }
+  body.tv .badge{ padding:14px 18px; font-size:16px; }
+  body.tv .big{ font-size:56px; }
+  body.tv .bar{ height:24px; }
+  body.tv .best{ font-size:15px; padding:12px 16px; }
+  body.tv .explain{ font-size:14px; }
+
+  @media (max-width: 980px){
+    .col-3{ grid-column:span 12; }
+  }
+</style>
+</head>
+
+<body>
+<div id="loginScreen" style="
+position:fixed;inset:0;background:#0b1020;
+display:flex;align-items:center;justify-content:center;
+z-index:9999;flex-direction:column;gap:10px">
+
+  <h2 style="color:white">Kredi Panel Giriş</h2>
+
+  <input id="lUser" placeholder="Kullanıcı adı">
+  <input id="lPass" type="password" placeholder="Şifre">
+
+  <button class="btn" onclick="login()">Giriş Yap</button>
+</div>
+
+
+<div class="wrap">
+
+  <div style="display:flex;gap:10px;margin-bottom:14px">
+    <button class="btn" onclick="showTab('decisionTab')">Karar Ekranı</button>
+    <button class="btn" onclick="showTab('historyTab')">Müşteri Geçmişi</button>
+  </div>
+
+  <div id="decisionTab">
+
+
+<div class="wrap">
+  <div class="card">
+    <div class="topbar">
+      <div>
+        <h1>Çoklu Kredi Paneli</h1>
+        <div class="sub">QNB / Yapı Kredi / Garanti / Akbank / Halkbank / DenizBank arasında geçiş yaparak karar, onay yüzdesi ve önerilen limit görürsün. TV/Büyük ekran modları mevcut.</div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="btnCalc">Hesapla</button>
+        <button class="btn" id="btnCopy">Sonucu Kopyala</button>
+        <button class="btn" id="btnTV">TV Modu</button>
+        <button class="btn" id="btnFS">Tam Ekran</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      
+<div class="col-3">
+  <label>TC Kimlik</label>
+  <input id="tc" type="text" placeholder="TC gir" onblur="loadCustomer(this.value); document.getElementById('historyTc').value=this.value; searchHistory();">
+</div>
+
+<div class="col-3">
+        <label>Gösterilecek Banka</label>
+        <select id="bank">
+          <option value="ZIR">Ziraat Bankası</option>
+          <option value="IS">İş Bankası</option>
+          <option value="GAR">Garanti BBVA</option>
+          <option value="AKB">Akbank</option>
+          <option value="YK">Yapı Kredi</option>
+          <option value="QNB" selected>QNB</option>
+          <option value="HAL">Halkbank</option>
+          <option value="DEN">DenizBank</option>
+          <option value="TEB">TEB</option>
+          <option value="ING">ING</option>
+        </select>
+      </div>
+      <div class="col-3"><label>Findeks</label><input id="findeks" type="number" value="1650"></div>
+      <div class="col-3"><label>Net Gelir (TL)</label><input id="income" type="number" value="60000"></div>
+      <div class="col-3"><label>Aylık Taksit (TL)</label><input id="installment" type="number" value="12000"></div>
+
+      <div class="col-3">
+        <label>Müşteri Tipi</label>
+        <select id="customerType">
+          <option value="standard" selected>Standart</option>
+          <option value="salary">Maaş Müşterisi</option>
+          <option value="new">Yeni Müşteri</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label>Meslek</label>
+        <select id="job">
+          <option value="public">Kamu / Emekli</option>
+          <option value="private" selected>Özel Sektör</option>
+          <option value="self">Esnaf / Serbest</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label>Gecikme</label>
+        <select id="delay">
+          <option value="no" selected>Yok</option>
+          <option value="yes">Var</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label>Son 45 gün RED</label>
+        <select id="reject45">
+          <option value="no" selected>Hayır</option>
+          <option value="yes">Evet</option>
+        </select>
+      </div>
+
+      <div class="col-3">
+        <label>İstenen Tutar (TL)</label>
+        <input id="requested" type="number" value="200000">
+      </div>
+<div class="col-3"><label>Toplam Kredi Bakiyesi</label><input id="loanBalance" type="number" value="0"></div>
+      <div class="col-3"><label>Kart Limiti</label><input id="cardLimit" type="number" value="0"></div>
+      <div class="col-3"><label>Kart Doluluk %</label><input id="cardUtil" type="number" value="0"></div>
+      <div class="col-3"><label>Kredi Adedi</label><input id="loanCount" type="number" value="0"></div>
+      <div class="col-3"><label>Kart Adedi</label><input id="cardCount" type="number" value="0"></div>
+      <div class="col-3"><label>Son 30g Başvuru</label><input id="recentApps" type="number" value="0"></div>
+      <div class="col-3"><label>Son Kredi Ayı</label><input id="lastLoanMonth" type="number" value="12"></div>
+      <div class="col-3">
+        <label>Konut Durumu</label>
+        <select id="housing">
+          <option value="rent">Kiracı</option>
+          <option value="owner">Ev Sahibi</option>
+          <option value="family">Aile Evi</option>
+        </select>
+      </div>
+
+      </div>
+    </div>
+
+    <div class="result-wrap" id="result">
+      <div class="result-head">
+        <div class="result-title">Kredi Değerlendirme Sonucu</div>
+        <div class="best" id="bestBank">Bu müşteri için en uygun banka: —</div>
+      </div>
+
+      <div class="badges">
+        <div class="badge" id="bDecision"><span class="icon">—</span><span class="k">Karar</span><span class="v">—</span></div>
+        <div class="badge" id="bGM"><span class="icon">🟡</span><span class="k">GM Olasılığı</span><span class="v">—</span></div>
+        <div class="badge" id="bCode"><span class="icon">🏷️</span><span class="k">Karar Kodu</span><span class="v">—</span></div>
+        <div class="badge" id="bRating" style="display:none" title="R1 en iyi, R5 en zayıf (banka bazlı)"><span class="icon">⭐</span><span class="k">Rating</span><span class="v">—</span></div>
+        <div class="badge" id="bFindeks" style="display:none" title="Findeks bazlı referans rating (banka iç rating'i değildir)"><span class="icon">🏁</span><span class="k">Findeks Grubu</span><span class="v">—</span></div>
+        <div class="badge" id="bScore" style="display:none"><span class="icon">🧠</span><span class="k">İç Skor</span><span class="v">—</span></div>
+        <div class="badge" id="bLimit"><span class="icon">💳</span><span class="k">Limit</span><span class="v">—</span></div>
+        <div class="badge" id="bOffer" style="display:none"><span class="icon">💡</span><span class="k">Önerilen Maksimum</span><span class="v">—</span></div>
+        <button id="useOfferBtn" class="btn" style="display:none;margin-top:6px" onclick="useSuggestedOffer()">Önerilen Tutarı Kullan</button>
+      </div>
+
+      <div class="bar"><span id="bar"></span></div>
+
+      <div class="big" id="bigProb">
+        <small>Onaylanma Olasılığı</small>
+        %0
+      </div>
+
+      <div class="explain" id="explain">—</div>
+
+      <div class="grid" style="margin-top:18px">
+        <div class="col-12">
+          <div style="padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:rgba(7,12,26,.55)">
+            <div style="font-weight:900;margin-bottom:10px">Müşteri Kaydı (Şube Notu)</div>
+            <div class="grid" style="gap:12px">
+              <div class="col-3">
+                <label>Müşteri hangi bankadan aldı?</label>
+                <select id="approvedBank"></select>
+              </div>
+              <div class="col-3">
+                <label>Alınan Tutar (TL)</label>
+                <input id="approvedAmount" type="number" placeholder="örn. 180000">
+              </div>
+              <div class="col-3">
+                <label>&nbsp;</label>
+                <button class="btn" id="btnSaveApproval">Kaydı Kaydet</button>
+              </div>
+              <div class="col-12">
+                <div class="sub" id="learnHint" style="margin:6px 0 0 0">—</div>
+                <div class="sub" id="avgHint" style="margin-top:6px">—</div>
+                <div class="sub" id="bankAvgHint" style="margin-top:6px">—</div>
+              </div>
+
+              <div class="col-12" style="margin-top:10px">
+                <div class="sub" style="margin-bottom:8px">Son kayıtlar (approvals) — son 200</div>
+                <div style="overflow:auto;border-radius:14px;border:1px solid rgba(255,255,255,.10)">
+                  <table style="width:100%;border-collapse:collapse;font-size:12px">
+                    <thead>
+                      <tr style="background:rgba(7,12,26,.75)">
+                        <th style="text-align:left;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">Tarih</th>
+                        <th style="text-align:left;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">TC</th>
+                        <th style="text-align:left;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">Profil</th>
+                        <th style="text-align:left;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">Banka</th>
+                        <th style="text-align:right;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">Tutar</th>
+                        <th style="text-align:center;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">Sil</th>
+                      </tr>
+                    </thead>
+                    <tbody id="approvalsTableBody">
+                      <tr><td colspan="5" style="padding:10px;color:rgba(230,237,246,.72)">—</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>window.supabase = supabase;</script>
+<script>
+let lastProbShown = 0;
+/* ======= STABIL & TEK KAYNAK JS (Supabase'e dokunmadan) ======= */
+const el = (id)=>document.getElementById(id);
+const clamp = (n,min,max)=>Math.max(min,Math.min(max,n));
+const fmt = (n)=> Number.isFinite(n) ? n.toLocaleString("tr-TR") : "—";
+
+function num(id){
+  const v = el(id)?.value;
+  if(v === "" || v === null || v === undefined) return 0;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+function str(id){ return (el(id)?.value||"").toString(); }
+
+function baseDTIPenalty(dti){
+  if(dti>0.70) return 0.55;
+  if(dti>0.60) return 0.45;
+  if(dti>0.50) return 0.30;
+  if(dti>0.40) return 0.15;
+  return 0.0;
+}
+function jobAdj(job){ if(job==="public") return 10; if(job==="self") return -10; return 0; }
+function customerTypeAdj(ct){ if(ct==="salary") return 10; if(ct==="new") return -10; return 0; }
+
+function sCurve(findeks){
+  const x=(findeks-1400)/120;
+  return 100/(1+Math.exp(-x));
+}
+
+function extraRiskPenalty(p){
+  // ===== İLK KREDİ + MAAŞ / TEMİZ PROFİL İSTİSNASI =====
+  const cleanFirst =
+    p.loanBalance === 0 &&
+    p.loanCount === 0 &&
+    p.recentApps === 0 &&
+    p.cardUtil < 50;
+
+  if(cleanFirst){
+    return -30;
+  }
+
+  let pen = 0;
+
+  const limitIncomeRatio = (p.cardLimit||0) / (p.income || 1);
+  const util = p.cardUtil || 0;
+
+  if(util > 70){
+    if(limitIncomeRatio > 8) pen += 45;
+    else if(limitIncomeRatio > 5) pen += 25;
+    else pen += 10;
+  }
+
+  // ===== SON 30 GÜN BAŞVURU GERÇEK ETKİ =====
+  if(p.recentApps >= 3) pen += 35;
+  else if(p.recentApps == 2) pen += 20;
+  else if(p.recentApps == 1) pen += 8;
+
+  // ===== SON KREDİ AYI GERÇEK ETKİ =====
+  if(p.loanCount > 0){
+    if(p.lastLoanMonth < 1) pen += 35;
+    else if(p.lastLoanMonth < 3) pen += 25;
+    else if(p.lastLoanMonth < 6) pen += 12;
+  }
+
+  // Kart sayısı hafif etki
+  pen += (p.cardCount||0) * 1.5;
+
+  // Kredi adedi (şube mantığı): 0-1 kredi risk değil, küçük avantaj; 2 hafif risk; 3+ gerçek risk
+  const lc = (p.loanCount||0);
+  if(lc <= 1) pen -= 8;
+  else if(lc === 2) pen += 5;
+  else pen += lc * 6;
+
+  if(p.housing === "rent") pen += 6;
+  if(p.housing === "owner") pen -= 6;
+
+  return pen;
+}
+
+function bankName(k){
+  return ({
+    ZIR:"Ziraat Bankası",
+    IS:"İş Bankası",
+    GAR:"Garanti BBVA",
+    AKB:"Akbank",
+    YK:"Yapı Kredi",
+    QNB:"QNB",
+    HAL:"Halkbank",
+    DEN:"DenizBank",
+    TEB:"TEB",
+    ING:"ING"
+  }[k] || k);
+}
+
+// ======= FINDeks -> İÇ SKOR + RATING (KREDIX TABLOSU) =======
+// Not: Bu bölüm, Findeks değişince İç Skor / Rating'in de değişmesi için eklendi.
+// Bankaya göre skor ölçeği farklı olduğu için her bankaya ayrı dönüşüm uygulanır.
+
+function lerp(a,b,t){ return a + (b-a)*t; }
+function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+
+// findeksBand: [fMin,fMax] -> internalBand: [sMin,sMax]
+function mapBand(findeks, fMin, fMax, sMin, sMax){
+  if(findeks <= fMin) return sMin;
+  if(findeks >= fMax) return sMax;
+  const t = (findeks - fMin) / (fMax - fMin);
+  return Math.round(lerp(sMin, sMax, clamp01(t)));
+}
+
+// Returns { internal:number, rating:string, segment:string }
+function kredixScoreFromFindeks(bankKey, findeks){
+  const f = Number(findeks)||0;
+
+  // Helper to pick segment by findeks ranges
+  function segQNB(){
+    if(f >= 1700) return {sMin:2600,sMax:3000,r:"R1",seg:"ONAY"};
+    if(f >= 1550) return {sMin:2350,sMax:2599,r:"R2",seg:"ONAY"};
+    if(f >= 1400) return {sMin:2100,sMax:2349,r:"R3",seg:"GM"};
+    if(f >= 1200) return {sMin:1800,sMax:2099,r:"R4",seg:"ZAYIF"};
+    return {sMin:1000,sMax:1799,r:"R5",seg:"RET"};
+  }
+  function seg100(labelA,labelB,labelC,labelD){
+    // 0-100 scale
+    if(f >= 1650) return {sMin:80,sMax:100,r:labelA,seg:"ONAY"};
+    if(f >= 1500) return {sMin:65,sMax:79,r:labelB,seg:"ONAY"};
+    if(f >= 1350) return {sMin:45,sMax:64,r:labelC,seg:"GM"};
+    if(f >= 1200) return {sMin:30,sMax:44,r:labelD,seg:"ZAYIF"};
+    return {sMin:0,sMax:29,r:(labelD.replace(/[0-9A-Z]*$/, labelD) /*noop*/),seg:"RET"}; // fallback, overridden below
+  }
+  function seg1000(prefix1,prefix2,prefix3,prefix4,prefix5){
+    // 0-1000 scale
+    if(f >= 1700) return {sMin:800,sMax:1000,r:prefix1,seg:"ONAY"};
+    if(f >= 1550) return {sMin:700,sMax:799,r:prefix2,seg:"ONAY"};
+    if(f >= 1400) return {sMin:600,sMax:699,r:prefix3,seg:"GM"};
+    if(f >= 1250) return {sMin:500,sMax:599,r:prefix4,seg:"ZAYIF"};
+    return {sMin:0,sMax:499,r:prefix5,seg:"RET"};
+  }
+  function seg1000_1650(prefix1,prefix2,prefix3,prefix4,prefix5){
+    // 0-1000 scale with 1650+ best band (some banks)
+    if(f >= 1650) return {sMin:850,sMax:1000,r:prefix1,seg:"ONAY"};
+    if(f >= 1500) return {sMin:750,sMax:849,r:prefix2,seg:"ONAY"};
+    if(f >= 1350) return {sMin:650,sMax:749,r:prefix3,seg:"GM"};
+    if(f >= 1200) return {sMin:550,sMax:649,r:prefix4,seg:"ZAYIF"};
+    return {sMin:0,sMax:549,r:prefix5,seg:"RET"};
+  }
+  function seg300_1000(prefix1,prefix2,prefix3,prefix4,prefix5){
+    // 300-1000 scale (Ziraat/Vakıf)
+    if(f >= 1650) return {sMin:850,sMax:1000,r:prefix1,seg:"ONAY"};
+    if(f >= 1500) return {sMin:750,sMax:849,r:prefix2,seg:"ONAY"};
+    if(f >= 1350) return {sMin:650,sMax:749,r:prefix3,seg:"GM"};
+    if(f >= 1200) return {sMin:550,sMax:649,r:prefix4,seg:"ZAYIF"};
+    return {sMin:300,sMax:549,r:prefix5,seg:"RET"};
+  }
+  function seg300_950(prefix1,prefix2,prefix3,prefix4,prefix5){
+    // 300-950 scale (Halk/Fibabanka)
+    if(f >= 1650) return {sMin:850,sMax:950,r:prefix1,seg:"ONAY"};
+    if(f >= 1500) return {sMin:760,sMax:849,r:prefix2,seg:"ONAY"};
+    if(f >= 1350) return {sMin:680,sMax:759,r:prefix3,seg:"GM"};
+    if(f >= 1200) return {sMin:600,sMax:679,r:prefix4,seg:"ZAYIF"};
+    return {sMin:300,sMax:599,r:prefix5,seg:"RET"};
+  }
+  function segDeniz(){
+    // 500-3000 scale
+    if(f >= 1700) return {sMin:2700,sMax:3000,r:"DB1",seg:"ONAY"};
+    if(f >= 1550) return {sMin:2400,sMax:2699,r:"DB2",seg:"ONAY"};
+    if(f >= 1400) return {sMin:2100,sMax:2399,r:"DB3",seg:"GM"};
+    if(f >= 1200) return {sMin:1800,sMax:2099,r:"DB4",seg:"ZAYIF"};
+    return {sMin:500,sMax:1799,r:"DB5",seg:"RET"};
+  }
+  function segTEB(){
+    // 0-100 scale, R1-R5 with extra band
+    if(f >= 1650) return {sMin:80,sMax:100,r:"R1",seg:"ONAY"};
+    if(f >= 1500) return {sMin:65,sMax:79,r:"R2",seg:"ONAY"};
+    if(f >= 1350) return {sMin:45,sMax:64,r:"R3",seg:"GM"};
+    if(f >= 1200) return {sMin:30,sMax:44,r:"R4",seg:"ZAYIF"};
+    return {sMin:0,sMax:29,r:"R5",seg:"RET"};
+  }
+  function segYK(){
+    // 0-100 scale, A-D
+    if(f >= 1650) return {sMin:80,sMax:100,r:"A",seg:"ONAY"};
+    if(f >= 1500) return {sMin:65,sMax:79,r:"B",seg:"ONAY"};
+    if(f >= 1350) return {sMin:45,sMax:64,r:"C",seg:"GM"};
+    return {sMin:0,sMax:44,r:"D",seg:"RET"};
+  }
+  function segGAR(){
+    // 0-1000 scale, A-D
+    if(f >= 1650) return {sMin:750,sMax:1000,r:"A",seg:"ONAY"};
+    if(f >= 1500) return {sMin:650,sMax:749,r:"B",seg:"ONAY"};
+    if(f >= 1350) return {sMin:550,sMax:649,r:"C",seg:"GM"};
+    return {sMin:0,sMax:549,r:"D",seg:"RET"};
+  }
+  function segING(){
+    // 0-1000 scale, G1-G5 with 1650+ top band
+    if(f >= 1650) return {sMin:780,sMax:1000,r:"G1",seg:"ONAY"};
+    if(f >= 1500) return {sMin:680,sMax:779,r:"G2",seg:"ONAY"};
+    if(f >= 1350) return {sMin:580,sMax:679,r:"G3",seg:"GM"};
+    if(f >= 1200) return {sMin:480,sMax:579,r:"G4",seg:"ZAYIF"};
+    return {sMin:0,sMax:479,r:"G5",seg:"RET"};
+  }
+  function segAKB(){
+    // 0-1000 scale, 1-5
+    if(f >= 1700) return {sMin:800,sMax:1000,r:"1",seg:"ONAY"};
+    if(f >= 1550) return {sMin:700,sMax:799,r:"2",seg:"ONAY"};
+    if(f >= 1400) return {sMin:600,sMax:699,r:"3",seg:"GM"};
+    if(f >= 1250) return {sMin:500,sMax:599,r:"4",seg:"ZAYIF"};
+    return {sMin:0,sMax:499,r:"5",seg:"RET"};
+  }
+  function segIS(){
+    // 0-1000 scale, I1-I5
+    if(f >= 1700) return {sMin:800,sMax:1000,r:"I1",seg:"ONAY"};
+    if(f >= 1550) return {sMin:700,sMax:799,r:"I2",seg:"ONAY"};
+    if(f >= 1400) return {sMin:600,sMax:699,r:"I3",seg:"GM"};
+    if(f >= 1250) return {sMin:500,sMax:599,r:"I4",seg:"ZAYIF"};
+    return {sMin:0,sMax:499,r:"I5",seg:"RET"};
+  }
+  function segZIR(){
+    // 300-1000 scale, Z1-Z5
+    if(f >= 1650) return {sMin:850,sMax:1000,r:"Z1",seg:"ONAY"};
+    if(f >= 1500) return {sMin:750,sMax:849,r:"Z2",seg:"ONAY"};
+    if(f >= 1350) return {sMin:650,sMax:749,r:"Z3",seg:"GM"};
+    if(f >= 1200) return {sMin:550,sMax:649,r:"Z4",seg:"ZAYIF"};
+    return {sMin:300,sMax:549,r:"Z5",seg:"RET"};
+  }
+  function segHAL(){
+    // 300-950 scale, H1-H5
+    if(f >= 1650) return {sMin:850,sMax:950,r:"H1",seg:"ONAY"};
+    if(f >= 1500) return {sMin:760,sMax:849,r:"H2",seg:"ONAY"};
+    if(f >= 1350) return {sMin:680,sMax:759,r:"H3",seg:"GM"};
+    if(f >= 1200) return {sMin:600,sMax:679,r:"H4",seg:"ZAYIF"};
+    return {sMin:300,sMax:599,r:"H5",seg:"RET"};
+  }
+
+  let band;
+
+  switch(bankKey){
+    case "QNB": band = segQNB(); break;
+    case "YK":  band = segYK(); break;
+    case "GAR": band = segGAR(); break;
+    case "AKB": band = segAKB(); break;
+    case "DEN": band = segDeniz(); break;
+    case "IS":  band = segIS(); break;
+    case "TEB": band = segTEB(); break;
+    case "ING": band = segING(); break;
+    case "ZIR": band = segZIR(); break;
+    case "HAL": band = segHAL(); break;
+    default:
+      // Varsayılan: 0-1000 ölçek, R1-R5
+      band = seg1000("R1","R2","R3","R4","R5");
+  }
+
+  // Findeks bandına göre iç skor aralığında lineer dağıt
+  // Bandın hangi findeks aralığına denk geldiğini tekrar kuruyoruz:
+  let fMin=0,fMax=1900;
+  if(bankKey==="QNB" || bankKey==="DEN"){
+    if(f>=1700){ fMin=1700; fMax=1900; }
+    else if(f>=1550){ fMin=1550; fMax=1699; }
+    else if(f>=1400){ fMin=1400; fMax=1549; }
+    else if(f>=1200){ fMin=1200; fMax=1399; }
+    else { fMin=0; fMax=1199; }
+  } else if(bankKey==="AKB" || bankKey==="IS"){
+    if(f>=1700){ fMin=1700; fMax=1900; }
+    else if(f>=1550){ fMin=1550; fMax=1699; }
+    else if(f>=1400){ fMin=1400; fMax=1549; }
+    else if(f>=1250){ fMin=1250; fMax=1399; }
+    else { fMin=0; fMax=1249; }
+  } else if(bankKey==="YK" || bankKey==="GAR" || bankKey==="ING" || bankKey==="TEB" || bankKey==="ZIR" || bankKey==="HAL"){
+    if(f>=1650){ fMin=1650; fMax=1900; }
+    else if(f>=1500){ fMin=1500; fMax=1649; }
+    else if(f>=1350){ fMin=1350; fMax=1499; }
+    else if(f>=1200){ fMin=1200; fMax=1349; }
+    else { fMin=0; fMax=1199; }
+  } else {
+    if(f>=1650){ fMin=1650; fMax=1900; }
+    else if(f>=1500){ fMin=1500; fMax=1649; }
+    else if(f>=1350){ fMin=1350; fMax=1499; }
+    else if(f>=1200){ fMin=1200; fMax=1349; }
+    else { fMin=0; fMax=1199; }
+  }
+
+  const internal = mapBand(f, fMin, fMax, band.sMin, band.sMax);
+  return { internal, rating: band.r, segment: band.seg };
+}
+
+
+function applyInstantRiskDowngrade(rating, p){
+  const down = (r)=>{
+    if(r==="R1") return "R2";
+    if(r==="R2") return "R3";
+    if(r==="R3") return "R4";
+    if(r==="R4") return "R5";
+    return "R5";
+  };
+
+  let r = rating;
+
+  if(p.recentApps >= 2) r = down(r);
+  if(p.cardUtil >= 75) r = down(r);
+  if(p.lastLoanMonth < 3 && p.loanCount > 0) r = down(r);
+  if(p.dti > 0.45) r = down(r);
+
+  return r;
+}
+
+
+function realBankRating(p, findeks, delay, reject45){
+  if(delay === "yes" || reject45 === "yes") return "R5";
+
+  let flags = 0;
+
+  if(findeks < 1500) flags++;
+  if(p.recentApps >= 2) flags++;
+  if(p.cardUtil >= 75) flags++;
+  if(p.lastLoanMonth < 3 && p.loanCount > 0) flags++;
+  if(p.dti > 0.45) flags++;
+
+  if(flags === 0) return "R1";
+  if(flags === 1) return "R2";
+  if(flags === 2) return "R3";
+  if(flags === 3) return "R4";
+  return "R5";
+}
+
+function decisionIcon(dec){ return dec==="ONAY" ? "✔️" : dec==="GM" ? "❗" : "✖"; }
+function decisionToneClass(dec){ return dec==="ONAY" ? "tone-green" : dec==="GM" ? "tone-yellow" : "tone-red"; }
+function decisionAnimClass(dec){ return dec==="ONAY" ? "anim-onay" : dec==="GM" ? "anim-gm" : "anim-ret"; }
+function barColorClass(prob){ return prob>=70 ? "green" : prob>=40 ? "yellow" : "red"; }
+
+function internalScore(p, customerType, delay, reject45){
+  // 300-3000: daha gerçekçi iç skor (findeks değil, davranış ağırlıklı)
+  let s = 1200;
+
+  const util = (p.cardUtil||0);
+  s += (100 - util) * 5.5;  // util 31 -> +379.5
+
+  const lm = ((p.loanCount||0)>0) ? (p.lastLoanMonth||12) : 12;
+  s += clamp(lm,0,12) * 32; // max +384
+
+  s += ((p.loanCount||0)===0 ? 120 : -Math.min(p.loanCount,10)*18);
+  s += ((p.cardCount||0)===0 ? 40 : -Math.min(p.cardCount,10)*10);
+
+  const dti = (p.income>0) ? (p.installment/p.income) : 1;
+  if(dti<=0.20) s += 220;
+  else if(dti<=0.30) s += 140;
+  else if(dti<=0.40) s += 60;
+  else if(dti<=0.50) s -= 40;
+  else s -= 120;
+
+  if(customerType==="salary") s += 180;
+  else if(customerType==="new") s -= 80;
+
+  if(p.housing==="owner") s += 90;
+  else if(p.housing==="rent") s -= 30;
+
+  s -= Math.min(p.recentApps||0,6) * 35;
+
+  if(delay==="yes") s -= 220;
+  if(reject45==="yes") s -= 140;
+
+  return clamp(Math.round(s), 300, 3000);
+}
+
+function ratingFromInternal(s){
+  if(s>=2750) return "R1";
+  if(s>=2550) return "R2";
+  if(s>=2300) return "R3";
+  if(s>=2000) return "R4";
+  return "R5";
+}
+
+function kararKodu(p, customerType, delay, reject45){
+  const dti = (p.income>0) ? (p.installment/p.income) : 1;
+  if(p.cardUtil>=80) return "KRD-UTIL80";
+  if((p.recentApps||0)>=2) return "KRD-APP2";
+  if(delay==="yes") return "KRD-DELAY";
+  if(reject45==="yes") return "KRD-45RED";
+  if(dti>0.60) return "KRD-DTI60";
+  if(dti>0.45) return "KRD-DTI45";
+  if(p.housing==="owner" && (p.loanCount||0)===0 && (p.loanBalance||0)===0) return "KRD-HYP1";
+  if(customerType==="salary" && (p.loanCount||0)<=1 && (p.loanBalance||0)===0) return "KRD-SAL1";
+  return "KRD-STD";
+}
+
+
+function setBadge(id, icon, key, val){
+  const node = el(id);
+  if(!node) return;
+  node.querySelector(".icon").textContent = icon;
+  node.querySelector(".k").textContent = key;
+  node.querySelector(".v").textContent = val;
+}
+
+function animateNumber(elNode, from, to, durMs){
+  const start = performance.now();
+  const ease = (t)=> 1 - Math.pow(1-t, 3);
+  function step(now){
+    const p = clamp((now-start)/durMs, 0, 1);
+    const v = Math.round(from + (to-from)*ease(p));
+    elNode.innerHTML = "<small>Onaylanma Olasılığı</small>%" + v;
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function hardRedRule(p){
+  // GERÇEK HARD RED — bankadan bağımsız
+  if(p.reject45 === "yes") return "Son 45 gün RED";
+  if(p.delay === "yes") return "Aktif gecikme";
+  // Diğerleri soft risk (GM/limit kırar)
+  return "";
+}
+
+
+const BANK_PARAMS = {
+  ZIR:{bias:4,  minFindeks:1050, slope:1.00, salaryFirstLoanFloor:88, publicBoost:14, privateBoost:2,  selfBoost:-6, ownerBoost:6, rentBoost:-2, mult:4.2},
+  IS: {bias:2,  minFindeks:1080, slope:1.02, salaryFirstLoanFloor:86, publicBoost:10, privateBoost:3,  selfBoost:-5, ownerBoost:5, rentBoost:-2, mult:4.0},
+  HAL:{bias:3,  minFindeks:1040, slope:0.98, salaryFirstLoanFloor:87, publicBoost:12, privateBoost:2,  selfBoost:-6, ownerBoost:5, rentBoost:-2, mult:4.0},
+
+  GAR:{bias:1,  minFindeks:1100, slope:1.03, salaryFirstLoanFloor:84, publicBoost:6,  privateBoost:4,  selfBoost:-4, ownerBoost:4, rentBoost:-1, mult:4.0},
+  AKB:{bias:0,  minFindeks:1120, slope:1.05, salaryFirstLoanFloor:82, publicBoost:6,  privateBoost:4,  selfBoost:-4, ownerBoost:4, rentBoost:-1, mult:3.9},
+  YK: {bias:0,  minFindeks:1110, slope:1.04, salaryFirstLoanFloor:83, publicBoost:6,  privateBoost:4,  selfBoost:-4, ownerBoost:4, rentBoost:-1, mult:4.0},
+
+  QNB:{bias:1,  minFindeks:1090, slope:1.02, salaryFirstLoanFloor:85, publicBoost:7,  privateBoost:4,  selfBoost:-5, ownerBoost:4, rentBoost:-1, mult:5.2},
+  DEN:{bias:-1, minFindeks:1070, slope:1.00, salaryFirstLoanFloor:80, publicBoost:6,  privateBoost:4,  selfBoost:-5, ownerBoost:3, rentBoost:-1, mult:4.2},
+  TEB:{bias:-1, minFindeks:1080, slope:1.01, salaryFirstLoanFloor:81, publicBoost:6,  privateBoost:4,  selfBoost:-5, ownerBoost:3, rentBoost:-1, mult:4.0},
+  ING:{bias:-2, minFindeks:1090, slope:1.02, salaryFirstLoanFloor:80, publicBoost:6,  privateBoost:4,  selfBoost:-5, ownerBoost:3, rentBoost:-1, mult:4.0},
+};
+
+// ======= BANKAYA GÖRE KARAR (İSTENEN TUTAR BAZLI) =======
+const BANK_DECISION_PARAMS = {
+  ZIR:{approveProb:58, gmProb:38, coverApprove:1.00, coverGM:0.50},
+  IS: {approveProb:60, gmProb:40, coverApprove:1.00, coverGM:0.50},
+  HAL:{approveProb:58, gmProb:38, coverApprove:1.00, coverGM:0.50},
+
+  GAR:{approveProb:64, gmProb:42, coverApprove:1.00, coverGM:0.50},
+  AKB:{approveProb:65, gmProb:42, coverApprove:1.00, coverGM:0.70},
+  YK: {approveProb:64, gmProb:42, coverApprove:1.00, coverGM:0.50},
+
+  QNB:{approveProb:62, gmProb:40, coverApprove:1.00, coverGM:0.50},
+  DEN:{approveProb:62, gmProb:40, coverApprove:1.00, coverGM:0.50},
+  TEB:{approveProb:62, gmProb:40, coverApprove:1.00, coverGM:0.50},
+  ING:{approveProb:63, gmProb:41, coverApprove:1.00, coverGM:0.50},
+};
+function dp(bankKey){ return BANK_DECISION_PARAMS[bankKey] || {approveProb:62, gmProb:40, coverApprove:1.00, coverGM:0.50}; }
+
+// ======= BANKA İÇ SKOR (Banka bazlı ağırlıklar, 300-3000) =======
+const BANK_SCORE_PARAMS = {
+  ZIR:{utilW:5.0, appsW:30, loanW:18, dtiW:260, salaryBoost:240, publicBoost:120, ownerBoost:80, base:1150},
+  IS: {utilW:5.2, appsW:32, loanW:20, dtiW:270, salaryBoost:230, publicBoost:100, ownerBoost:70, base:1120},
+  HAL:{utilW:5.0, appsW:30, loanW:18, dtiW:260, salaryBoost:235, publicBoost:110, ownerBoost:75, base:1140},
+
+  GAR:{utilW:5.6, appsW:38, loanW:24, dtiW:300, salaryBoost:210, publicBoost:70,  ownerBoost:60, base:1080},
+  AKB:{utilW:5.8, appsW:40, loanW:26, dtiW:310, salaryBoost:205, publicBoost:65,  ownerBoost:60, base:1060},
+  YK: {utilW:5.7, appsW:39, loanW:25, dtiW:305, salaryBoost:205, publicBoost:65,  ownerBoost:60, base:1070},
+
+  QNB:{utilW:5.5, appsW:37, loanW:24, dtiW:295, salaryBoost:215, publicBoost:75,  ownerBoost:60, base:1090},
+  DEN:{utilW:5.4, appsW:36, loanW:23, dtiW:290, salaryBoost:200, publicBoost:70,  ownerBoost:55, base:1075},
+  TEB:{utilW:5.5, appsW:37, loanW:24, dtiW:295, salaryBoost:200, publicBoost:70,  ownerBoost:55, base:1070},
+  ING:{utilW:5.6, appsW:38, loanW:25, dtiW:300, salaryBoost:195, publicBoost:65,  ownerBoost:55, base:1065},
+};
+function sp(bankKey){ return BANK_SCORE_PARAMS[bankKey] || {utilW:5.5,appsW:36,loanW:22,dtiW:290,salaryBoost:210,publicBoost:80,ownerBoost:60,base:1080}; }
+
+function internalScoreBank(bankKey, p, customerType, job, delay, reject45){
+  // ===== QNB GERÇEKÇİ MODEL =====
+  if(bankKey === "QNB"){
+    let s = 300;
+
+    const findeks = num("findeks");
+    const income = p.income || 0;
+    const inst = p.installment || 0;
+    const dti = income>0 ? inst/income : 0;
+
+    // Findeks ana belirleyici
+    s += findeks * 1.2;   // 1900 -> 2280
+
+    // Maaş müşterisi ciddi bonus
+    if(customerType === "salary") s += 180;
+
+    // Gelir seviyesi
+    if(income > 40000) s += 120;
+    if(income > 70000) s += 80;
+
+    // DTI etkisi (hafif)
+    if(dti <= 0.20) s += 120;
+    else if(dti <= 0.30) s += 60;
+    else if(dti <= 0.40) s += 20;
+    else if(dti > 0.50) s -= 120;
+
+    // Gecikme ve 45g red sert ceza
+    if(delay === "yes") s -= 400;
+    if(reject45 === "yes") s -= 350;
+
+    return clamp(Math.round(s), 300, 3000);
+  }
+
+  // ===== DİĞER BANKALAR ESKİ MODEL =====
+  const w = sp(bankKey);
+  let s = w.base;
+
+  const util = (p.cardUtil||0);
+  s += (100 - util) * w.utilW;
+
+  s -= Math.min(p.recentApps||0,6) * w.appsW;
+
+  const lc = (p.loanCount||0);
+  if(lc <= 1) s += 60;
+  else if(lc === 2) s += 10;
+  else s -= Math.min(lc,8) * w.loanW;
+
+  const lm = (lc>0) ? (p.lastLoanMonth||12) : 12;
+  if(lm < 1) s -= 220;
+  else if(lm < 3) s -= 140;
+  else if(lm < 6) s -= 70;
+  else s += 20;
+
+  const dti = (p.income>0) ? (p.installment/p.income) : 1;
+  if(dti <= 0.20) s += 160;
+  else if(dti <= 0.30) s += 80;
+  else if(dti <= 0.40) s += 10;
+  else if(dti <= 0.50) s -= 90;
+  else s -= w.dtiW;
+
+  if(customerType==="salary") s += w.salaryBoost;
+  if(customerType==="new") s -= 120;
+
+  if(job==="public") s += w.publicBoost;
+  if(job==="self") s -= 20;
+
+  if((p.housing||"") === "owner") s += w.ownerBoost;
+  if((p.housing||"") === "rent") s -= 40;
+
+  if(delay==="yes") s -= 420;
+  if(reject45==="yes") s -= 360;
+
+  return clamp(Math.round(s), 300, 3000);
+}
+
+// ======= BANKAYA GÖRE RATING (R1 en iyi, R5 en zayıf) =======
+const BANK_RATING_BANDS = {
+  ZIR:[2700,2450,2200,1900],
+  IS: [2720,2470,2220,1920],
+  HAL:[2700,2450,2200,1900],
+
+  GAR:[2760,2550,2320,2050],
+  AKB:[2780,2570,2350,2080],
+  YK: [2770,2560,2340,2070],
+
+  QNB:[2750,2530,2300,2030],
+  DEN:[2740,2520,2285,2020],
+  TEB:[2745,2525,2290,2025],
+  ING:[2755,2540,2310,2040],
+};
+
+function bankRatingFromInternal(bankKey, s, decision, prob, limitRaw, req){
+  const b = BANK_RATING_BANDS[bankKey] || [2750,2550,2300,2000];
+
+  let rating = "R5";
+  if(s >= b[0]) rating = "R1";
+  else if(s >= b[1]) rating = "R2";
+  else if(s >= b[2]) rating = "R3";
+  else if(s >= b[3]) rating = "R4";
+
+  // Şube düzeltmesi: Banka ONAY verip tutarı karşılıyorsa R5 olamaz.
+  if(req>0){
+    const cover = (limitRaw>0) ? (limitRaw/req) : 0;
+    if(decision === "ONAY"){
+      if(cover >= 1.2 && prob >= 75) rating = "R2";
+      else if(cover >= 1.0 && prob >= 65) rating = "R3";
+      else if(rating === "R5") rating = "R4";
+    }
+    if(decision === "GM" && prob >= 55 && rating === "R5") rating = "R4";
+  }else{
+    if(decision === "ONAY" && rating === "R5") rating = "R4";
+  }
+
+  return rating;
+}
+
+function bp(bankKey){ return BANK_PARAMS[bankKey] || {bias:0,minFindeks:1100,slope:1.0,salaryFirstLoanFloor:82,publicBoost:8,privateBoost:3,selfBoost:-5,ownerBoost:4,rentBoost:-1,mult:4.0}; }
+
+function bankModelDefaults(bankKey){
+  const p = bp(bankKey);
+  return { mult: p.mult || 4.0, base: 0 };
+}
+
+
+function calcRealisticLimit(income, currentInstallment, job, findeks){
+  const inc = Number(income)||0;
+  const inst = Number(currentInstallment)||0;
+
+  let maxTaksit = inc * 0.50 - inst;
+  if(maxTaksit < 0) maxTaksit = 0;
+
+  let jobCoef = 1.0;
+  if(job === "public") jobCoef = 1.20;
+  else if(job === "self") jobCoef = 0.75;
+
+  const taksitGucu = maxTaksit * jobCoef;
+  const limitBaz = taksitGucu * 10;
+
+  let fxCoef = 0.55;
+  if(findeks < 1400) fxCoef = 0.35;
+  else if(findeks >= 1700) fxCoef = 0.80;
+
+  return Math.max(0, Math.round(limitBaz * fxCoef));
+}
+
+function computeBank(bankKey, f, income, inst, req, customerType, job, delay, reject45){
+  const dti = income>0 ? inst/income : 0;
+  const pObj = {
+    cardUtil: num("cardUtil"),
+    cardLimit: num("cardLimit"),
+    loanBalance: num("loanBalance"),
+    loanCount: num("loanCount"),
+    cardCount: num("cardCount"),
+    recentApps: num("recentApps"),
+    lastLoanMonth: num("lastLoanMonth")||12,
+    housing: str("housing"),
+    income,
+    installment: inst,
+    dti
+  };
+
+
+  // HARD RED
+  const redReason = hardRedRule({
+    cardUtil:pObj.cardUtil,
+    recentApps:pObj.recentApps,
+    delay,
+    reject45
+  });
+  if(redReason){
+    // HARD RED durumunda bile iç skor ve rating banka mantığından gelsin
+    const internal = internalScoreBank(
+      bankKey,
+      pObj,
+      customerType,
+      job,
+      delay,
+      reject45
+    );
+
+    const decision = "RET";
+    const prob = 5;
+    const limitRaw = 0;
+    const reqLocal = req || 0;
+
+    // ===== GERÇEK BANKA RATING (SKORDAN BAĞIMSIZ) =====
+  const rating = realBankRating(
+    pObj,
+    f,
+    delay,
+    reject45
+  );
+
+    return {
+      bankKey,
+      internal,
+      rating,
+      prob,
+      decision,
+      limit: 0,
+      limitRaw: 0,
+      dti,
+      outcome: "RET",
+      code: kararKodu(pObj, customerType, delay, reject45),
+      reason: redReason
+    };
+  }
+
+  // ===== PROB (müşteri kalitesi) =====
+  const par = bp(bankKey);
+  const sc = sCurve(f * (par.slope || 1));
+  let prob = sc - extraRiskPenalty(pObj) + (par.bias||0);
+
+  // bankaya göre minimum findeks (çok düşükte kırp)
+  if(f < (par.minFindeks||0)){
+    prob = Math.min(prob, 35);
+  }
+
+  // Segment / meslek / konut etkisi
+  if(job==='public') prob += (par.publicBoost||0);
+  else if(job==='self') prob += (par.selfBoost||0);
+  else prob += (par.privateBoost||0);
+
+  if(customerType==='salary') prob += 8;
+  else if(customerType==='new') prob -= 8;
+
+  if(pObj.housing==='owner') prob += (par.ownerBoost||0);
+  else if(pObj.housing==='rent') prob += (par.rentBoost||0);
+
+  // DTI tek ceza (çifte kırma yok)
+  if(dti>0.60) prob -= 25;
+  else if(dti>0.50) prob -= 15;
+  else if(dti>0.40) prob -= 8;
+
+  // ===== ŞUBE: MAAŞ + TEMİZ + (0-1 kredi) + util<75 => güçlü çıkış =====
+  const isStrongSalary = (
+    customerType==="salary" &&
+    (pObj.loanCount||0) <= 1 &&
+    (pObj.cardUtil||0) < 75 &&
+    delay==="no" &&
+    reject45==="no" &&
+    (pObj.recentApps||0) <= 1 &&
+    dti <= 0.40
+  );
+  if(isStrongSalary){
+    prob += ((pObj.loanCount||0)===0 ? 30 : 18);
+  }
+
+  // Kart doluluk 70-79: RET değil, limit kıran faktör
+  let limitPenaltyMult = 1.0;
+  if(pObj.cardUtil >= 70 && pObj.cardUtil < 80) limitPenaltyMult *= 0.60;
+
+  prob = clamp(Math.round(prob), 5, 95);
+
+  // ===== LIMIT (karardan önce hesaplanır) =====
+  const model = bankModelDefaults(bankKey);
+
+  // BDDK vade sınırı (ihtiyaç): <=125k 36 ay, 125-250k 24 ay, >250k 12 ay
+  const reqAmt = req || 0;
+  let maxTerm = (reqAmt>250000) ? 12 : (reqAmt>125000 ? 24 : 36);
+  // Banka bazlı vade esnetme (şube pratiği): bazı bankalar yüksek tutarda daha uzun vade kampanyası yapabiliyor
+  if(bankKey==="QNB" && reqAmt>250000) maxTerm = 24;
+
+  // Ödeme kapasitesi: gelir*cap - mevcut taksit (QNB maaş/gelirli müşteride daha toleranslı olabilir)
+  let cap = (customerType==="salary") ? 0.55 : 0.50;
+  if(bankKey==="QNB") cap = (customerType==="salary") ? 0.65 : 0.60;
+  const maxNewPayment = Math.max(0, (income * cap) - inst);
+
+  // Temsili aylık faiz (banka bazlı yaklaşık)
+  let r = 0.075;
+  if(bankKey==="QNB") r = 0.05;
+  const n = maxTerm;
+  const pvFactor = (r>0) ? ((1 - Math.pow(1+r, -n)) / r) : n;
+  const paymentBased = Math.floor(maxNewPayment * pvFactor);
+
+  // Gelir bazlı limit
+  let incomeBased = income * model.mult * (1 - clamp(dti,0,0.85));
+
+  // Mevcut maruziyet düzeltmesi
+  incomeBased -= (pObj.loanBalance||0) * 0.35;
+  incomeBased -= (pObj.cardLimit||0) * ((pObj.cardUtil||0)/100) * 0.25;
+
+  let limitRaw = Math.round(calcRealisticLimit(income, inst, job, f) * ((model.mult || 4.0) / 4.0));
+
+  // Segment ayarı + util kırımı
+  if(customerType==="salary") limitRaw = Math.floor(limitRaw * 1.07);
+  if(customerType==="new") limitRaw = Math.floor(limitRaw * 0.95);
+  limitRaw = Math.floor(limitRaw * limitPenaltyMult);
+
+  // İstenen tutar etkisi (müşteri ne istiyor?)
+  if(req>0){
+    if(req <= limitRaw*0.70) prob = clamp(prob + 6, 5, 95);
+    else if(req > limitRaw*1.30) prob = clamp(prob - 12, 5, 95);
+    else if(req > limitRaw) prob = clamp(prob - 6, 5, 95);
+  }
+
+  // ===== FINAL KARAR (istenen tutar bazlı, şube mantığı) =====
+  let decision = "RET";
+  const dpar = dp(bankKey);
+
+  if(req>0){
+    const cover = (limitRaw>0) ? (limitRaw/req) : 0;
+
+    // 1) Banka isteneni karşılıyorsa ve müşteri kalitesi yeterliyse ONAY
+    if(cover >= dpar.coverApprove && prob >= dpar.approveProb){
+      decision = "ONAY";
+    }
+    // 2) Banka isteneni karşılamıyorsa ama anlamlı bir tutar verebiliyorsa GM
+    else if(limitRaw >= Math.max(30000, req * 0.35) && prob >= dpar.gmProb){
+      // coverGM bankaya göre esner ama alt güvenlik: %35 üstüyse GM
+      if(cover >= dpar.coverGM || cover >= 0.35) decision = "GM";
+      else decision = "RET";
+    }
+    // 3) Verilebilir tutar çok düşükse RET
+    else{
+      decision = "RET";
+    }
+  }else{
+    // İstenen tutar yoksa klasik
+    if(prob>=70) decision="ONAY";
+    else if(prob>=40) decision="GM";
+    else decision="RET";
+  }
+
+  // Limit gösterimi: GM'de temkinli kır; RET'te bile bankanın teklif edebileceği tutarı göster (şube pazarlığı)
+  let limit = 0;
+  if(decision==="ONAY") limit = limitRaw;
+  else if(decision==="GM") limit = Math.floor(limitRaw * 0.88);
+  else limit = Math.floor(limitRaw * 0.80);
+
+  // ===== GERÇEK BANKA İÇ SKORU =====
+  const internal = internalScoreBank(
+    bankKey,
+    pObj,
+    customerType,
+    job,
+    delay,
+    reject45
+  );
+
+  // ===== GERÇEK ŞUBE RATING MANTIĞI =====
+  const rating = bankRatingFromInternal(
+    bankKey,
+    internal,
+    decision,
+    prob,
+    limitRaw,
+    req
+  );
+
+  let outcome = decision;
+  if(decision!=="RET" && req>0){
+    // GM'de müşteri talebi karşılanmıyorsa outcome GM kalsın
+    outcome = decision;
+  }
+
+  return {
+    bankKey, internal, rating,
+    prob, decision, limit, limitRaw, dti,
+    outcome,
+    code: kararKodu(pObj, customerType, delay, reject45),
+    reason: ""
+  };
+}
+
+
+function render(){
+  const f = num("findeks");
+  const income = num("income");
+  const inst = num("installment");
+  const req = num("requested");
+  const customerType = str("customerType");
+  const job = str("job");
+  const delay = str("delay");
+  const reject45 = str("reject45");
+
+  const keys = ["ZIR","IS","GAR","AKB","YK","QNB","HAL","DEN","TEB","ING"];
+  const all = keys.map(k=>computeBank(k,f,income,inst,req,customerType,job,delay,reject45));
+  all.sort((a,b)=> b.prob - a.prob);
+
+  const best = all[0];
+  const top3 = all.slice(0,3).map(x=>`${bankName(x.bankKey)} (%${x.prob})`).join(" | ");
+  el("bestBank").textContent = `Bu müşteri için en uygun bankalar: ${top3}`;
+
+  const selected = str("bank");
+  const res = all.find(x=>x.bankKey===selected) || best;
+
+  const decLabel = (res.decision==="ONAY") ? "ONAY" : (res.decision==="GM") ? "GM ONAYI" : ((res.limitRaw||0)>0 ? "RET (TUTAR YÜKSEK)" : "RET");
+
+  setBadge("bDecision", decisionIcon(res.decision), "Karar", decLabel);
+
+  // GM olasılığı: karar bandına göre pratik gösterim
+  let gmProb = 0;
+  if(res.decision==="GM") gmProb = res.prob;
+  else if(res.decision==="ONAY") gmProb = Math.max(0, res.prob - 20);
+  else gmProb = Math.max(0, res.prob - 10);
+  setBadge("bGM", "🟡", "GM Olasılığı", `%${gmProb}`);
+  setBadge("bCode", "🏷️", "Karar Kodu", String(res.code||"KRD-STD"));
+  setBadge("bRating", "⭐", "Rating", String(res.rating||"—"));
+
+  // ===== FINDEKS REFERANS BADGE =====
+  const kredixRef = kredixScoreFromFindeks(res.bankKey, num("findeks"));
+  setBadge("bFindeks", "🏁", "Findeks Grubu", kredixRef.rating);
+  setBadge("bScore", "🧠", "İç Skor", fmt(Math.round(res.internal)));
+  setBadge("bLimit", "💳", "Limit", fmt(Math.round(res.limit)) + " TL");
+  window.lastLimitRaw = Number(res.limitRaw || 0);
+
+  const bar = el("bar");
+  bar.className = "";
+  bar.classList.add(barColorClass(res.prob));
+  bar.style.width = res.prob + "%";
+
+  const panel = el("result");
+  panel.classList.remove("tone-green","tone-yellow","tone-red","anim-onay","anim-gm","anim-ret");
+  panel.classList.add(decisionToneClass(res.decision));
+  panel.classList.add(decisionAnimClass(res.decision));
+
+  animateNumber(el("bigProb"), lastProbShown, res.prob, 520);
+  lastProbShown = res.prob;
+
+  const cardLimitVal = num("cardLimit");
+  const creditInstallment = inst;
+  const cardMinPay = cardLimitVal * 0.03;
+  const dtiPct = income>0 ? Math.round(((creditInstallment + cardMinPay)/income)*100) : 0;
+  const extra = [];
+  if(reject45==="yes") extra.push("son 45 gün RED");
+  if(delay==="yes") extra.push("gecikme");
+  if(customerType==="salary") extra.push("maaş müşterisi");
+  if(customerType==="new") extra.push("yeni müşteri");
+  if(job==="public") extra.push("kamu/emekli");
+  if(job==="self") extra.push("esnaf/serbest");
+  if(res.reason) extra.push("Kırmızı Bayrak: "+res.reason);
+
+  el("explain").textContent =
+    `DTI: %${dtiPct}. Seçili banka: ${bankName(res.bankKey)}. Sonuç: ${res.outcome}. ${extra.length?("Etkiler: "+extra.join(" • ") + "."):""}`;
+
+  lastText = [
+    `Girdi: Findeks=${f}, Gelir=${fmt(income)} TL, Taksit=${fmt(inst)} TL, DTI=%${dtiPct}`,
+    `Müşteri Tipi=${customerType}, Meslek=${job}, Gecikme=${delay}, 45gRed=${reject45}`,
+    `En iyi banka: ${bankName(best.bankKey)} (Onay %${best.prob})`,
+    `Seçili banka: ${bankName(res.bankKey)}`,
+    `Karar: ${decLabel}, Onay: %${res.prob}, Limit: ${fmt(Math.round(res.limit))} TL`
+  ].join("\n");
+
+  // Supabase akışları (varsa) – hata verse bile UI çalışsın
+  try{ logApplication({ tc: str("tc"), banka: bankName(res.bankKey), profile_key: profileKey(), sonuc: res.decision }); }catch(e){}
+  try{ populateApprovedBankOptions(); }catch(e){}
+  try{ saveCustomer(); }catch(e){}
+  try{ showLearning(); }catch(e){}
+  try{ showApprovalsList(); }catch(e){}
+  try{ showAverageForProfile(); }catch(e){}
+  try{ showBankAverages(); }catch(e){}
+}
+
+/* ======= Butonlar ======= */
+const TV_KEY="multi_bank_tv_mode_deniz";
+function setTV(on){
+  document.body.classList.toggle("tv", on);
+  localStorage.setItem(TV_KEY, on ? "1" : "0");
+  if(el("btnTV")) el("btnTV").textContent = on ? "TV Modu: Açık" : "TV Modu";
+}
+function toggleTV(){ setTV(!document.body.classList.contains("tv")); }
+
+async function toggleFullscreen(){
+  try{
+    if(!document.fullscreenElement) await document.documentElement.requestFullscreen();
+    else await document.exitFullscreen();
+  }catch(e){ alert("Tarayıcı tam ekranı engelliyor olabilir."); }
+}
+
+async function copyResult(){
+  if(!lastText){ alert("Önce hesapla."); return; }
+  try{
+    await navigator.clipboard.writeText(lastText);
+    alert("Sonuç panoya kopyalandı.");
+  }catch(e){
+    const ta=document.createElement("textarea");
+    ta.value=lastText; document.body.appendChild(ta);
+    ta.select(); document.execCommand("copy");
+    document.body.removeChild(ta);
+    alert("Sonuç panoya kopyalandı.");
+  }
+}
+
+function showTab(id){
+  el("decisionTab").style.display = "none";
+  el("historyTab").style.display = "none";
+  el(id).style.display = "block";
+}
+
+/* ======= Supabase (AYNEN) ======= */
+const { createClient } = window.supabase;
+const sb = createClient(
+  "https://qgpzwognwltydchqtxuh.supabase.co",
+  "sb_publishable_4BujNr0cadf4Tbty4rzL3w_wLVi0nhc"
+);
+
+async function login(){
+  const u = el("lUser").value;
+  const p = el("lPass").value;
+
+  const { data } = await sb
+    .from('users')
+    .select('*')
+    .eq('username', u)
+    .eq('password', p)
+    .single();
+
+  if(!data){
+    alert("Hatalı giriş");
+    return;
+  }
+  el("loginScreen").style.display = "none";
+}
+
+async function loadCustomer(tc){
+  tc = (tc||"").trim();
+  if(tc.length < 5) return;
+
+  const { data } = await sb
+    .from('customers')
+    .select('*')
+    .eq('tc', tc)
+    .single();
+
+  if(!data) return;
+
+  el("findeks").value = data.findeks ?? el("findeks").value;
+  el("income").value = data.gelir ?? el("income").value;
+  el("cardLimit").value = data.kart_limit ?? el("cardLimit").value;
+  el("cardUtil").value = data.kart_doluluk ?? el("cardUtil").value;
+  el("loanBalance").value = data.kredi_bakiye ?? el("loanBalance").value;
+  el("loanCount").value = data.kredi_adet ?? el("loanCount").value;
+  el("lastLoanMonth").value = data.son_kredi_ayi ?? el("lastLoanMonth").value;
+  el("recentApps").value = data.son_basvuru ?? el("recentApps").value;
+
+  render();
+}
+
+async function saveCustomer(){
+  const tc = (el("tc")?.value || "").trim();
+  if(tc.length < 5) return;
+
+  await sb.from('customers').upsert({
+    tc,
+    findeks: num("findeks"),
+    gelir: num("income"),
+    kart_limit: num("cardLimit"),
+    kart_doluluk: num("cardUtil"),
+    kredi_bakiye: num("loanBalance"),
+    kredi_adet: num("loanCount"),
+    son_kredi_ayi: num("lastLoanMonth"),
+    son_basvuru: num("recentApps")
+  });
+}
+
+async function saveApproval(){
+  const tc = (el("tc")?.value || "").trim();
+  const banka = el("approvedBank")?.value;
+  const tutar = Number(el("approvedAmount")?.value)||0;
+
+  if(tc.length < 5){ alert("TC gir."); return; }
+  if(!banka){ alert("Banka seç."); return; }
+  if(tutar <= 0){ alert("Tutar gir."); return; }
+
+  const pk = profileKey();
+
+  const { error } = await sb.from('approvals').insert({
+    tc,
+    banka,
+    tutar,
+    profile_key: pk,
+    findeks: num("findeks") || null,
+    gelir: num("income") || null,
+    kart_doluluk: num("cardUtil") || null,
+    kredi_bakiye: num("loanBalance") || null,
+    istenen_tutar: num("requested") || null
+  });
+
+  if(error){
+    console.error(error);
+    alert("Kaydedilemedi. approvals tablosu + RLS kontrol et.");
+    return;
+  }
+
+  el("approvedAmount").value = "";
+  alert("Kayıt eklendi.");
+  await showLearning();
+  await showApprovalsList();
+  await showAverageForProfile();
+  await showBankAverages();
+}
+
+async function deleteApproval(id){
+  if(!confirm("Bu kaydı silmek istiyor musun?")) return;
+  await sb.from('approvals').delete().eq('id', id);
+  await showApprovalsList();
+  await showAverageForProfile();
+  await showBankAverages();
+}
+
+async function showApprovalsList(){
+  const body = el("approvalsTableBody");
+  if(!body) return;
+
+  const { data, error } = await sb
+    .from('approvals')
+    .select('id,tc,banka,tutar,profile_key,created_at')
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  if(error){
+    console.error(error);
+    body.innerHTML = `<tr><td colspan="6" style="padding:10px;color:rgba(230,237,246,.72)">Liste alınamadı (approvals tablo/izin).</td></tr>`;
+    return;
+  }
+  if(!data || data.length===0){
+    body.innerHTML = `<tr><td colspan="6" style="padding:10px;color:rgba(230,237,246,.72)">Henüz kayıt yok.</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = data.map(r=>{
+    const dt = (r.created_at || "").replace("T"," ").replace("Z","");
+    const tc = (r.tc || "").toString();
+    const tcMask = tc.length>=4 ? ("***" + tc.slice(-4)) : tc;
+    const tut = (r.tutar ?? 0).toLocaleString("tr-TR");
+    const pk = r.profile_key || "";
+    const bk = r.banka || "";
+    return `<tr>
+      <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,.06);white-space:nowrap">${dt}</td>
+      <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,.06)">${tcMask}</td>
+      <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,.06)">${pk}</td>
+      <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,.06)">${bk}</td>
+      <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,.06);text-align:right">${tut}</td>
+      <td style="padding:10px;text-align:center;border-bottom:1px solid rgba(255,255,255,.06)">
+        <button onclick="deleteApproval('${r.id}')" style="background:#b91c1c;border:none;color:white;padding:6px 10px;border-radius:6px;cursor:pointer">🗑</button>
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+async function showAverageForProfile(){
+  const hint = el("avgHint");
+  if(!hint) return;
+
+  const pk = profileKey();
+  const { data, error } = await sb
+    .from('approvals')
+    .select('tutar')
+    .eq('profile_key', pk)
+    .order('created_at', { ascending: false })
+    .limit(500);
+
+  if(error){
+    console.error(error);
+    hint.textContent = "Ortalama hesaplanamadı (approvals/izin).";
+    return;
+  }
+  if(!data || data.length === 0){
+    hint.textContent = "Bu profile ait ortalama veri yok.";
+    return;
+  }
+
+  const total = data.reduce((s,r)=> s + (r.tutar || 0), 0);
+  const avg = Math.round(total / data.length);
+
+  hint.textContent = `Bu profile sahip müşterilerin ortalama aldığı tutar: ${avg.toLocaleString("tr-TR")} TL  (n=${data.length})`;
+}
+
+async function showBankAverages(){
+  const elHint = el("bankAvgHint");
+  if(!elHint) return;
+
+  const pk = profileKey();
+  const { data, error } = await sb
+    .from('approvals')
+    .select('banka,tutar')
+    .eq('profile_key', pk)
+    .order('created_at', { ascending: false })
+    .limit(500);
+
+  if(error){
+    console.error(error);
+    elHint.textContent = "";
+    return;
+  }
+  if(!data || data.length === 0){
+    elHint.textContent = "";
+    return;
+  }
+
+  const map = {};
+  data.forEach(r=>{
+    const b = r.banka || "-";
+    if(!map[b]) map[b] = [];
+    map[b].push(r.tutar || 0);
+  });
+
+  const lines = Object.keys(map).map(b=>{
+    const arr = map[b];
+    const avg = Math.round(arr.reduce((a,v)=>a+v,0)/arr.length);
+    return {b, avg, n:arr.length};
+  }).sort((x,y)=>y.avg-x.avg)
+    .map(x=>`${x.b}: ${x.avg.toLocaleString("tr-TR")} TL (n=${x.n})`);
+
+  elHint.textContent = "Bankalara göre ortalama verilen tutar →  " + lines.join("  |  ");
+}
+
+async function showLearning(){
+  const hint = el("learnHint");
+  if(!hint) return;
+
+  const pk = profileKey();
+  const { data, error } = await sb
+    .from('approvals')
+    .select('banka')
+    .eq('profile_key', pk)
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  if(error){
+    console.error(error);
+    hint.textContent = "Öğrenen öneri için approvals tablosu / izinler kontrol edilmeli.";
+    return;
+  }
+  if(!data || data.length === 0){
+    hint.textContent = "Bu profile ait geçmiş kayıt yok. (Kaydı Kaydet ile öğrenmeye başlar)";
+    return;
+  }
+
+  const counts = {};
+  data.forEach(r => counts[r.banka] = (counts[r.banka]||0) + 1);
+  const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const [bestBank, bestCount] = entries[0];
+  const pct = Math.round((bestCount / data.length) * 100);
+
+  hint.textContent = `Bu profile en çok kredi veren: ${bestBank} (%${pct} başarı, n=${data.length})`;
+}
+
+async function searchHistory(){
+  const tc = (el("historyTc")?.value || "").trim();
+  const body = el("historyTableBody");
+  if(!body) return;
+
+  const { data, error } = await sb
+    .from('approvals')
+    .select('*')
+    .eq('tc', tc)
+    .order('created_at', { ascending:false });
+
+  if(error){
+    console.error(error);
+    body.innerHTML = `<tr><td colspan="9" style="padding:8px">Hata</td></tr>`;
+    return;
+  }
+
+  if(!data || data.length===0){
+    body.innerHTML = `<tr><td colspan="9" style="padding:8px">Kayıt yok</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = data.map(r=>`
+    <tr>
+      <td style="padding:8px">${(r.created_at||'').replace("T"," ").slice(0,16)}</td>
+      <td style="padding:8px">${r.tc || '-'}</td>
+      <td style="padding:8px">${r.banka || '-'}</td>
+      <td style="padding:8px">${r.tutar ? Number(r.tutar).toLocaleString("tr-TR") : '-'}</td>
+      <td style="padding:8px">${r.findeks ?? '-'}</td>
+      <td style="padding:8px">${r.gelir ?? '-'}</td>
+      <td style="padding:8px">%${r.kart_doluluk ?? '-'}</td>
+      <td style="padding:8px">${r.kredi_bakiye ?? '-'}</td>
+      <td style="padding:8px">${r.istenen_tutar ?? '-'}</td>
+    </tr>
+  `).join("");
+}
+
+// APPLICATIONS TABLE (opsiyonel) – hata verse bile UI çalışsın
+async function logApplication({ tc, banka, profile_key, sonuc }) {
+  if (!tc || tc.length < 5) return;
+  try{ await sb.from('applications').insert({ tc, banka, profile_key, sonuc }); }catch(e){}
+}
+
+/* ======= Dropdown & init ======= */
+function populateApprovedBankOptions(){
+  const sel = el("approvedBank");
+  if(!sel) return;
+  const keys = ["ZIR","IS","GAR","AKB","YK","QNB","HAL","DEN","TEB","ING"];
+  sel.innerHTML = "";
+  keys.forEach(k=>{
+    const o = document.createElement("option");
+    o.value = bankName(k);
+    o.textContent = bankName(k);
+    sel.appendChild(o);
+  });
+}
+
+/* ======= Bağlantılar (Tüm butonlar çalışır) ======= */
+function bindUI(){
+  el("btnCalc")?.addEventListener("click", render);
+  el("btnCopy")?.addEventListener("click", copyResult);
+  el("btnTV")?.addEventListener("click", toggleTV);
+  el("btnFS")?.addEventListener("click", toggleFullscreen);
+  el("btnSaveApproval")?.addEventListener("click", saveApproval);
+
+  const ids = ["bank","findeks","income","installment","customerType","job","delay","reject45","requested","loanBalance","cardLimit","cardUtil","loanCount","cardCount","recentApps","lastLoanMonth","housing"];
+  ids.forEach(id=>{
+    el(id)?.addEventListener("change", render);
+    el(id)?.addEventListener("input", render);
+    el(id)?.addEventListener("keyup", (e)=>{ if(e.key==="Enter") render(); });
+  });
+
+  // Login screen keeps inline onclick="login()" already, no change needed.
+}
+
+window.addEventListener("load", async ()=>{
+  setTV(localStorage.getItem(TV_KEY)==="1");
+  bindUI();
+  populateApprovedBankOptions();
+  render();
+  try{ await showApprovalsList(); }catch(e){}
+  try{ await showAverageForProfile(); }catch(e){}
+  try{ await showBankAverages(); }catch(e){}
+});
+
+function useSuggestedOffer(){
+  const val = window.lastLimitRaw || 0;
+  if(val > 0){
+    const elReq = document.getElementById("requested");
+    if(elReq){
+      elReq.value = val;
+      render();
+    }
+  }
+}
+</script>
+
+
+  <div id="historyTab" style="display:none">
+    <div class="card">
+      <h2>Müşteri Geçmişi</h2>
+
+      <div style="margin-bottom:10px">
+        <input id="historyTc" placeholder="TC gir">
+        <button class="btn" onclick="searchHistory()">Ara</button>
+      </div>
+
+      <div style="overflow:auto;border-radius:14px;border:1px solid rgba(255,255,255,.10)">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="background:rgba(7,12,26,.75)">
+              <th style="padding:8px">Tarih</th>
+              <th style="padding:8px">TC</th>
+              <th style="padding:8px">Banka</th>
+              <th style="padding:8px">Tutar</th>
+              <th style="padding:8px">Findeks</th>
+              <th style="padding:8px">Gelir</th>
+              <th style="padding:8px">Kart %</th>
+              <th style="padding:8px">Kredi Bakiye</th>
+              <th style="padding:8px">İstenen</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
