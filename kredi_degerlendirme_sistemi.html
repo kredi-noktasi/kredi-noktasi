@@ -1,0 +1,2606 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kredi Karar Sistemi Pro 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
+<style>
+:root{
+  --bg:#0a0e1a;--card:#111827;--text:#f3f4f6;--muted:#9ca3af;
+  --success:#10b981;--warning:#f59e0b;--danger:#ef4444;--accent:#3b82f6;--info:#06b6d4;
+  --purple:#8b5cf6;--orange:#f97316;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+.container{max-width:1400px;margin:0 auto;padding:20px}
+.card{
+  background:var(--card);border:1px solid rgba(255,255,255,0.1);
+  border-radius:16px;padding:24px;margin-bottom:20px;
+}
+h1{font-size:24px;margin:0 0 8px 0}
+h2{font-size:18px;margin:0 0 16px 0;color:var(--muted)}
+h3{font-size:16px;margin:0 0 12px 0}
+
+.form-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;
+}
+.form-group label{
+  display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;
+  color:var(--muted);margin-bottom:6px;font-weight:600;
+}
+.form-group input,.form-group select, .file-input{
+  width:100%;padding:12px;background:#1f2937;border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;color:var(--text);font-size:14px;
+}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent)}
+.file-input{cursor:pointer;padding:20px;text-align:center;border-style:dashed}
+.file-input:hover{background:rgba(59,130,246,0.1)}
+
+.tc-masked {font-family:monospace;letter-spacing:1px}
+
+.btn{
+  padding:10px 20px;border-radius:8px;border:none;font-weight:600;cursor:pointer;
+  transition:all 0.2s;font-size:13px;display:inline-flex;align-items:center;gap:6px;
+}
+.btn-primary{background:var(--accent);color:white}
+.btn-secondary{background:rgba(255,255,255,0.1);color:var(--text)}
+.btn-danger{background:var(--danger);color:white}
+.btn-success{background:var(--success);color:black}
+.btn-warning{background:var(--warning);color:black}
+.btn-purple{background:var(--purple);color:white}
+.btn-orange{background:var(--orange);color:white}
+.btn:hover:not(:disabled){transform:translateY(-1px);opacity:0.9}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+
+.top-actions{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+
+.tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:12px}
+.tab-btn{
+  padding:10px 20px;border-radius:8px;background:transparent;border:none;
+  color:var(--muted);font-weight:600;cursor:pointer;transition:all 0.2s;
+}
+.tab-btn.active{background:rgba(59,130,246,0.2);color:var(--accent)}
+.tab-btn:hover:not(.active){background:rgba(255,255,255,0.05);color:var(--text)}
+
+/* 7 Kategori Değerlendirme Stilleri */
+.category-assessment{
+  background:rgba(0,0,0,0.2);
+  border-radius:16px;
+  padding:24px;
+  margin:20px 0;
+}
+.category-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+  padding-bottom:16px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.category-title{
+  font-size:18px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.category-score{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+.score-circle{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05));
+  border:3px solid var(--success);
+}
+.score-circle.warning{
+  background:linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.05));
+  border-color:var(--warning);
+}
+.score-circle.danger{
+  background:linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.05));
+  border-color:var(--danger);
+}
+.score-value{
+  font-size:28px;
+  font-weight:800;
+}
+.score-label{
+  font-size:11px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+.category-table{
+  width:100%;
+  border-collapse:collapse;
+}
+.category-table th{
+  text-align:left;
+  padding:14px 16px;
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.category-table td{
+  padding:16px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:14px;
+}
+.category-table tr:hover{
+  background:rgba(255,255,255,0.02);
+}
+.category-name{
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.category-icon{
+  width:32px;
+  height:32px;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+}
+.category-detail{
+  color:var(--muted);
+  font-size:13px;
+}
+.category-points{
+  font-size:20px;
+  font-weight:700;
+}
+.category-status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+}
+.status-positive{
+  background:rgba(16,185,129,0.15);
+  color:#10b981;
+}
+.status-neutral{
+  background:rgba(245,158,11,0.15);
+  color:#f59e0b;
+}
+.status-negative{
+  background:rgba(239,68,68,0.15);
+  color:#ef4444;
+}
+
+/* PDF Rapor detay kartları */
+.pdf-detail-card{
+  background:rgba(0,0,0,0.3);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:16px;
+}
+.pdf-detail-card h4{
+  margin:0 0 12px 0;
+  font-size:14px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+.pdf-detail-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
+}
+.pdf-detail-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px;
+  background:rgba(255,255,255,0.03);
+  border-radius:8px;
+  border-left:3px solid var(--accent);
+}
+.pdf-detail-item.warning{border-left-color:var(--warning);}
+.pdf-detail-item.danger{border-left-color:var(--danger);}
+.pdf-detail-item.success{border-left-color:var(--success);}
+.pdf-detail-label{
+  font-size:12px;
+  color:var(--muted);
+}
+.pdf-detail-value{
+  font-size:16px;
+  font-weight:700;
+}
+.pdf-alert{
+  background:rgba(239,68,68,0.1);
+  border:1px solid rgba(239,68,68,0.3);
+  color:#fecaca;
+  padding:12px;
+  border-radius:8px;
+  margin:12px 0;
+  font-size:13px;
+}
+.pdf-alert.warning{
+  background:rgba(245,158,11,0.1);
+  border-color:rgba(245,158,11,0.3);
+  color:#fde68a;
+}
+
+.card-details-table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+  font-size:12px;
+}
+.card-details-table th {
+  background:rgba(59,130,246,0.1);
+  color:var(--accent);
+  padding:8px;
+  text-align:left;
+  font-weight:600;
+}
+.card-details-table td {
+  padding:8px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.card-details-table tr:hover {
+  background:rgba(255,255,255,0.02);
+}
+.kmh-card {
+  background:linear-gradient(135deg, rgba(6,182,212,0.1), rgba(59,130,246,0.1));
+  border:1px solid rgba(6,182,212,0.3);
+  border-radius:12px;
+  padding:16px;
+  margin-top:16px;
+}
+.progress-bar-bg {
+  background:rgba(0,0,0,0.3);
+  border-radius:10px;
+  height:24px;
+  overflow:hidden;
+  margin-top:8px;
+  position:relative;
+}
+.progress-bar-fill {
+  height:100%;
+  border-radius:10px;
+  transition:width 0.5s ease;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding-right:8px;
+  font-size:12px;
+  font-weight:700;
+}
+
+/* LOGIN */
+#loginScreen{
+  position:fixed;inset:0;background:linear-gradient(135deg,#0f172a,#1e3a8a);
+  display:flex;align-items:center;justify-content:center;z-index:9999;
+}
+.login-box{
+  background:var(--card);padding:40px;border-radius:16px;width:90%;max-width:400px;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.login-title{font-size:28px;font-weight:700;margin-bottom:8px}
+.login-subtitle{color:var(--muted);margin-bottom:24px}
+.input-group{margin-bottom:16px}
+.input-group label{display:block;margin-bottom:6px;font-size:12px;color:var(--muted);text-transform:uppercase}
+.input-group input{
+  width:100%;padding:14px;background:#1f2937;border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;color:var(--text);font-size:15px;
+}
+
+/* RESULTS */
+.result-box{
+  margin-top:20px;padding:24px;border-radius:16px;border:1px solid rgba(255,255,255,0.1);
+  background:linear-gradient(180deg,rgba(30,41,59,0.5),var(--card));display:none;
+}
+.result-box.show{display:block;animation:fadeIn 0.5s}
+.result-approve{border-color:rgba(16,185,129,0.3);background:linear-gradient(180deg,rgba(16,185,129,0.1),var(--card))}
+.result-gm{border-color:rgba(245,158,11,0.3);background:linear-gradient(180deg,rgba(245,158,11,0.1),var(--card))}
+.result-reject{border-color:rgba(239,68,68,0.3);background:linear-gradient(180deg,rgba(239,68,68,0.1),var(--card))}
+
+.decision-badge{
+  display:inline-block;padding:12px 24px;border-radius:12px;font-size:24px;font-weight:800;
+  margin-bottom:16px;box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
+.decision-approve{background:var(--success);color:black}
+.decision-gm{background:var(--warning);color:black}
+.decision-reject{background:var(--danger);color:white}
+
+.info-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:20px 0;
+}
+.info-item{
+  background:rgba(0,0,0,0.3);padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);
+}
+.info-item .label{font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.info-item .value{font-size:24px;font-weight:700}
+
+.findex-analysis{
+  background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.2);
+  border-radius:12px;padding:20px;margin:20px 0;
+}
+.findex-bar{
+  height:20px;background:rgba(0,0,0,0.3);border-radius:10px;overflow:hidden;margin-top:12px;
+}
+.findex-fill{
+  height:100%;border-radius:10px;transition:width 1s ease;
+}
+.findex-excellent{background:linear-gradient(90deg,#10b981,#059669)}
+.findex-good{background:linear-gradient(90deg,#3b82f6,#2563eb)}
+.findex-mid{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.findex-bad{background:linear-gradient(90deg,#ef4444,#dc2626)}
+.findex-risk{background:linear-gradient(90deg,#7c2d12,#991b1b)}
+
+.red-details{
+  background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);
+  border-radius:16px;padding:24px;margin-top:20px;
+}
+.red-reason{
+  display:flex;gap:12px;margin-bottom:12px;padding:16px;background:rgba(0,0,0,0.2);
+  border-radius:8px;border-left:3px solid var(--danger);
+}
+.red-reason.solution{border-left-color:var(--success);background:rgba(16,185,129,0.05)}
+.badge-tag{
+  display:inline-block;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;
+  white-space:nowrap;text-transform:uppercase;
+}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px;background:rgba(0,0,0,0.2);border-radius:12px;overflow:hidden}
+th,td{padding:14px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)}
+th{background:rgba(0,0,0,0.4);color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+tr:hover{background:rgba(255,255,255,0.02)}
+.rating-box{
+  display:inline-block;padding:6px 12px;border-radius:6px;font-weight:800;font-size:12px;
+}
+.rating-excellent{background:#10b981;color:black}
+.rating-good{background:#3b82f6;color:white}
+.rating-mid{background:#f59e0b;color:black}
+.rating-low{background:#ef4444;color:white}
+.rating-bad{background:#374151;color:white}
+
+/* CHARTS */
+.chart-container{
+  background:rgba(0,0,0,0.2);border-radius:16px;padding:24px;margin:20px 0;
+  border:1px solid rgba(255,255,255,0.05);position:relative;height:300px;
+}
+.chart-title{
+  font-size:13px;color:var(--muted);margin-bottom:16px;text-transform:uppercase;
+  letter-spacing:1px;font-weight:700;display:flex;justify-content:space-between;align-items:center;
+}
+
+/* HISTORY */
+.history-item{
+  padding:16px;background:rgba(0,0,0,0.2);border-radius:12px;margin-bottom:12px;
+  border:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;
+}
+.history-item:hover{background:rgba(255,255,255,0.03)}
+
+/* PRINT */
+@media print{
+  body{background:white;color:black}
+  .card{background:#f8fafc;border:1px solid #e2e8f0;break-inside:avoid}
+  .btn,#loginScreen,.tabs{display:none !important}
+  #mainApp{display:block !important}
+  .result-box{display:block !important;background:#fff !important;border:2px solid #333 !important}
+  .chart-container{background:#fff;height:auto !important}
+  canvas{max-height:400px !important}
+  .red-details{background:#fef2f2 !important;border-color:#fecaca !important}
+  .red-details h3{color:#dc2626 !important}
+  .info-item{background:#f1f5f9 !important;color:#000 !important}
+}
+
+.error-box{
+  background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);
+  color:#fecaca;padding:12px;border-radius:8px;margin-top:16px;display:none;
+}
+.success-box{
+  background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);
+  color:#a7f3d0;padding:12px;border-radius:8px;margin-top:16px;display:none;
+}
+
+.leg-item{display:flex;align-items:center;gap:8px;margin-right:16px;font-size:12px;color:var(--muted)}
+.leg-dot{width:12px;height:12px;border-radius:50%;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.pdf-upload-area{
+  border:2px dashed rgba(59,130,246,0.3);
+  border-radius:12px;
+  padding:24px;
+  text-align:center;
+  background:rgba(59,130,246,0.05);
+  margin-bottom:20px;
+  transition:all 0.3s;
+}
+.pdf-upload-area:hover{
+  border-color:var(--accent);
+  background:rgba(59,130,246,0.1);
+}
+.pdf-upload-area input[type="file"]{
+  display:none;
+}
+.file-label{
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+}
+.file-label strong{color:var(--accent)}
+
+.debug-box{
+  background:rgba(255,193,7,0.1);
+  border:1px solid rgba(255,193,7,0.3);
+  color:#ffc107;
+  padding:12px;
+  border-radius:8px;
+  margin-top:16px;
+  font-family:monospace;
+  font-size:12px;
+  display:none;
+  max-height:200px;
+  overflow-y:auto;
+}
+
+/* Algoritma Analizi Stilleri */
+.algo-analysis{
+  background:linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1));
+  border:1px solid rgba(139,92,246,0.3);
+  border-radius:16px;
+  padding:24px;
+  margin:20px 0;
+}
+.algo-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+.algo-title{
+  font-size:18px;
+  font-weight:700;
+  color:var(--purple);
+}
+.algo-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:16px;
+}
+.algo-item{
+  background:rgba(0,0,0,0.3);
+  border-radius:12px;
+  padding:16px;
+  border-left:4px solid var(--purple);
+}
+.algo-item-title{
+  font-size:13px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  margin-bottom:8px;
+}
+.algo-item-value{
+  font-size:20px;
+  font-weight:700;
+}
+.algo-item-desc{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+/* Gelir/Gider Analizi - BDDK Kuralları */
+.income-expense-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:16px;
+  margin:20px 0;
+}
+@media (max-width: 768px) {
+  .income-expense-grid{
+    grid-template-columns:1fr;
+  }
+}
+.income-box{
+  background:linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05));
+  border:1px solid rgba(16,185,129,0.3);
+  border-radius:12px;
+  padding:20px;
+  text-align:center;
+}
+.expense-box{
+  background:linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05));
+  border:1px solid rgba(239,68,68,0.3);
+  border-radius:12px;
+  padding:20px;
+  text-align:center;
+}
+.net-box{
+  background:linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.05));
+  border:1px solid rgba(59,130,246,0.3);
+  border-radius:12px;
+  padding:20px;
+  text-align:center;
+}
+.box-label{
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  margin-bottom:8px;
+}
+.box-value{
+  font-size:28px;
+  font-weight:800;
+}
+.box-sub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+/* BDDK Oran Göstergeleri */
+.bddk-ratio-box{
+  background:rgba(0,0,0,0.2);
+  border-radius:8px;
+  padding:16px;
+}
+.bddk-ratio-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+.bddk-ratio-label{
+  font-size:13px;
+  color:var(--muted);
+}
+.bddk-ratio-status{
+  font-size:12px;
+  padding:4px 10px;
+  border-radius:12px;
+  font-weight:600;
+}
+.bddk-ratio-value{
+  font-size:32px;
+  font-weight:800;
+}
+.bddk-ratio-limit{
+  font-size:13px;
+  color:var(--muted);
+}
+.bddk-progress-bar{
+  margin-top:12px;
+  background:rgba(0,0,0,0.3);
+  border-radius:8px;
+  height:24px;
+  overflow:hidden;
+}
+.bddk-progress-fill{
+  height:100%;
+  border-radius:8px;
+  transition:width 0.5s ease;
+}
+.bddk-max-loan-box{
+  background:linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1));
+  border:1px solid rgba(139,92,246,0.3);
+  border-radius:8px;
+  padding:16px;
+}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-title">Kredi Değerlendirme Sistemi</div>
+    <div class="login-subtitle">Giriş yapınız</div>
+    <div class="input-group">
+      <label>Kullanıcı Adı</label>
+      <input type="text" id="lUser" placeholder="Kullanıcı adı">
+    </div>
+    <div class="input-group">
+      <label>Şifre</label>
+      <input type="password" id="lPass" placeholder="Şifre">
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Giriş Yap</button>
+  </div>
+</div>
+
+<div id="mainApp" class="container" style="display:none;">
+  
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('evaluate',this)">Değerlendirme</button>
+    <button class="tab-btn" onclick="switchTab('history',this)">Müşteri Geçmişi</button>
+    <button class="tab-btn" onclick="switchTab('findex',this)">Findex Analizi</button>
+  </div>
+
+  <!-- EVALUATE TAB -->
+  <div id="evaluateTab">
+    <div class="card">
+      <div class="top-actions">
+        <div>
+          <h1>Bireysel İhtiyaç Kredisi Değerlendirme</h1>
+          <h2>Banka iç risk rating ve limit analizi</h2>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" onclick="searchCustomer()">🔍 Müşteri Ara</button>
+          <button class="btn btn-orange" onclick="document.getElementById('findexPdfInput').click()">📄 PDF Oku</button>
+          <button class="btn btn-warning" onclick="resetForm()">🔄 Sıfırla</button>
+          <button class="btn btn-primary" onclick="calculate()">📊 Analiz Yap</button>
+          <button class="btn btn-success" onclick="saveCustomer()">💾 Kaydet</button>
+          <button class="btn btn-secondary" onclick="window.print()">🖨️ Yazdır</button>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <!-- Müşteri Kimlik Bilgileri -->
+        <div class="form-group" style="grid-column: 1 / -1; background:rgba(59,130,246,0.05); padding:16px; border-radius:8px; border:1px solid rgba(59,130,246,0.2);">
+          <h3 style="margin-bottom:12px; color:var(--accent);">👤 Müşteri Kimlik Bilgileri</h3>
+          <div class="form-grid" style="margin-top:12px;">
+            <div class="form-group" style="margin:0;">
+              <label>TC Kimlik No <span style="color:var(--danger)">*</span></label>
+              <input type="text" id="tc" maxlength="11" placeholder="11 hane" onblur="loadCustomerData()" oninput="maskTC(this)" class="tc-masked">
+              <small style="color:var(--muted); font-size:11px; margin-top:4px; display:block;">* Güvenlik için son 2 hane gizli kalır</small>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Ad Soyad <span style="color:var(--danger)">*</span></label>
+              <input type="text" id="fullName" placeholder="Müşteri adı soyadı" style="text-transform:uppercase; font-weight:600;">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Telefon</label>
+              <input type="text" id="phone" placeholder="05XX XXX XX XX">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Değerlendirme Bankası</label>
+          <select id="bank">
+            <option value="all">Tüm Bankalar (Karşılaştırma)</option>
+            <option value="HAL" selected>Halkbank (Esnaf Dostu)</option>
+            <option value="ZIR">Ziraat Bankası</option>
+            <option value="IS">İş Bankası</option>
+            <option value="VAK">Vakıfbank</option>
+            <option value="GAR">Garanti BBVA</option>
+            <option value="YK">Yapı Kredi</option>
+            <option value="AKB">Akbank (Katı)</option>
+            <option value="QNB">QNB Finansbank</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Müşteri Türü</label>
+          <select id="customerType">
+            <option value="new">İlk Kez Kredi (Clean Slate)</option>
+            <option value="salary" selected>Maaş Müşterisi</option>
+            <option value="artisan">Esnaf/Sanatkar</option>
+            <option value="pension">Emekli</option>
+            <option value="corporate">Ticari/Tüzel</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Findeks Skoru (0-1900)</label>
+          <input type="number" id="findeks" placeholder="PDF'den otomatik doldurulur" min="0" max="1900" oninput="updateFindexPreview()">
+        </div>
+        <div class="form-group">
+          <label>Aylık Net Gelir (TL)</label>
+          <input type="number" id="income" placeholder="Örn: 150000" min="0">
+        </div>
+        <div class="form-group">
+          <label>İstenen Tutar (TL)</label>
+          <input type="number" id="requested" placeholder="Örn: 400000" min="1000">
+        </div>
+
+        <div class="form-group">
+          <label>Mevcut Aylık Taksit (TL)</label>
+          <input type="number" id="currentInst" value="0" min="0" placeholder="PDF'den otomatik hesaplanır">
+        </div>
+        <div class="form-group">
+          <label>Meslek/Sektör</label>
+          <select id="job">
+            <option value="public">Kamu Memuru</option>
+            <option value="private" selected>Özel Sektör</option>
+            <option value="self">Serbest/Esnaf</option>
+            <option value="retail">Perakende</option>
+            <option value="construction">İnşaat</option>
+            <option value="tourism">Turizm</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>İş Süresi</label>
+          <select id="workDuration">
+            <option value="0-6">0-6 ay</option>
+            <option value="6-12">6-12 ay</option>
+            <option value="12-24">1-2 yıl</option>
+            <option value="24+" selected>2+ yıl</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Konut Durumu</label>
+          <select id="housing">
+            <option value="rent" selected>Kiracı</option>
+            <option value="family">Aile Evi</option>
+            <option value="owner">Ev Sahibi</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Aktif Kredi/Kart Sayısı</label>
+          <input type="number" id="loanCount" value="0" min="0" max="20" placeholder="PDF'den otomatik">
+        </div>
+        <div class="form-group">
+          <label>Son 1 Yıl Gecikme</label>
+          <select id="delay">
+            <option value="0" selected>Yok</option>
+            <option value="1">1-2 defa (1-30 gün)</option>
+            <option value="3">3+ defa veya 30+ gün</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Son 45G Kredi Red?</label>
+          <select id="recentReject">
+            <option value="no" selected>Hayır</option>
+            <option value="yes">Evet</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Aktif İcra/Takip?</label>
+          <select id="legalFollow">
+            <option value="no" selected>Hayır (Temiz)</option>
+            <option value="small">10.000 TL altı</option>
+            <option value="medium">10.000-50.000 TL</option>
+            <option value="high">50.000 TL üzeri</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="autoFillInfo" style="display:none;margin-top:16px;padding:12px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;color:#a7f3d0;font-size:13px;">
+        <strong>✅ PDF'den Otomatik Doldurulan Bilgiler:</strong> Findeks Skoru, Kredi Sayısı, Borç Tutarı ve Gecikme Durumu PDF'den alınarak yukarıdaki alanlara otomatik yazıldı.
+      </div>
+
+      <div id="findexPreview" class="findex-analysis" style="display:none;">
+        <h3>📊 Findex Ön Değerlendirmesi</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span id="findexStatus">Bilinmiyor</span>
+          <span id="findexRisk" style="font-weight:700;">-</span>
+        </div>
+        <div class="findex-bar">
+          <div id="findexBar" class="findex-fill" style="width:0%"></div>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:var(--muted);" id="findexAdvice"></div>
+      </div>
+
+      <div id="errorBox" class="error-box"></div>
+      <div id="successBox" class="success-box"></div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="resultBox" class="card result-box">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+        <div>
+          <div id="decisionBadge" class="decision-badge">KARAR</div>
+          <div style="color:var(--muted);font-size:14px;margin-top:4px;">
+            <span id="bestBankName">-</span> | 
+            <span id="decisionDate">-</span>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:48px;font-weight:800;" id="confidencePercent">-%</div>
+          <div style="font-size:12px;color:var(--muted);">Güven Skoru</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin:20px 0;flex-wrap:wrap;" id="legendContainer"></div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="label">Banka İç Rating</div>
+          <div class="value" id="ratingValue">-</div>
+        </div>
+        <div class="info-item">
+          <div class="label">Önerilen Limit</div>
+          <div class="value" id="limitValue">-</div>
+        </div>
+        <div class="info-item">
+          <div class="label">DTI Oranı</div>
+          <div class="value" id="dtiValue">-%</div>
+        </div>
+        <div class="info-item">
+          <div class="label">Risk Skoru</div>
+          <div class="value" id="scoreValue">-</div>
+        </div>
+      </div>
+
+      <!-- Gelir/Gider Analizi -->
+      <div id="incomeExpenseAnalysis"></div>
+
+      <!-- 7 Kategori Değerlendirmesi -->
+      <div id="categoryAssessment"></div>
+
+      <!-- Algoritma Analizi -->
+      <div id="algorithmAnalysis"></div>
+
+      <div class="chart-container">
+        <div class="chart-title">
+          <span>Banka Karşılaştırma</span>
+          <div style="display:flex;">
+            <div class="leg-item"><div class="leg-dot" style="background:#10b981"></div>Onay</div>
+            <div class="leg-item"><div class="leg-dot" style="background:#f59e0b"></div>GM</div>
+            <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Ret</div>
+          </div>
+        </div>
+        <canvas id="mainChart"></canvas>
+      </div>
+
+      <div id="rejectAnalysis"></div>
+
+      <h3 style="margin:24px 0 16px 0;">Tüm Banka Değerlendirmeleri</h3>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Banka</th>
+              <th>Karar</th>
+              <th>Güven %</th>
+              <th>İç Rating</th>
+              <th>Limit</th>
+              <th>Gerekçe</th>
+            </tr>
+          </thead>
+          <tbody id="resultsTable"></tbody>
+        </table>
+      </div>
+
+      <div class="chart-container" style="margin-top:24px;">
+        <div class="chart-title">Risk Profili Radar Analizi</div>
+        <canvas id="radarChart"></canvas>
+      </div>
+
+      <!-- PRINT SECTION -->
+      <div id="printSection" style="margin-top:40px;padding-top:40px;border-top:2px dashed rgba(255,255,255,0.2);display:none;" class="print-only">
+        <h2>Müşteri Kredi Raporu</h2>
+        <p><strong>Müşteri:</strong> <span id="printName"></span> | <strong>TC:</strong> <span id="printTc"></span></p>
+        <p><strong>Tarih:</strong> <span id="printDate"></span></p>
+        <p><strong>Değerlendirme:</strong> <span id="printDecision"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="historyTab" style="display:none;">
+    <div class="card">
+      <h1>Müşteri Geçmişi</h1>
+      <div style="display:flex;gap:12px;margin-bottom:20px;">
+        <input type="text" id="searchTcInput" placeholder="TC veya İsim ile ara" style="max-width:300px;" class="form-group input">
+        <button class="btn btn-primary" onclick="searchHistory()">Ara</button>
+        <button class="btn btn-secondary" onclick="loadAllHistory()">Tümünü Göster</button>
+      </div>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- FINDEX TAB -->
+  <div id="findexTab" style="display:none;">
+    <div class="card">
+      <h1>Findex (KKB) Detay Analizi</h1>
+      
+      <!-- PDF Yükleme Alanı -->
+      <div class="pdf-upload-area" onclick="document.getElementById('findexPdfInput').click()">
+        <input type="file" id="findexPdfInput" accept=".pdf" onchange="processFindexPDF(this)">
+        <label class="file-label">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent)">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <strong>Findeks PDF Raporu Yükle</strong>
+          <span>KKB raporunuzu sürükleyin veya tıklayın</span>
+          <span style="font-size:11px;opacity:0.7;margin-top:4px;">PDF'den otomatik skor, kredi kartları, KMH ve borç bilgileri okunur</span>
+        </label>
+      </div>
+
+      <div id="pdfProcessingStatus" style="display:none;margin-bottom:16px;padding:12px;background:rgba(59,130,246,0.1);border-radius:8px;border:1px solid rgba(59,130,246,0.3);text-align:center;">
+        <span style="color:var(--accent)">📄 PDF analiz ediliyor...</span>
+      </div>
+
+      <!-- PDF Detay Raporu Burada Gösterilecek -->
+      <div id="pdfDetailReport"></div>
+
+      <div id="debugBox" class="debug-box"></div>
+
+      <div class="form-grid" style="margin-bottom:24px;margin-top:24px;">
+        <div class="form-group">
+          <label>Findeks Skoru Girin</label>
+          <input type="number" id="analyzeFindex" placeholder="0-1900" min="0" max="1900">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+          <button class="btn btn-primary" onclick="analyzeFindexDetail()" style="width:100%;">Analiz Et</button>
+        </div>
+      </div>
+      <div id="findexDetailResult"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================
+// GERÇEKÇİ BANKA ALGORİTMALARI - 2025/2026
+// BDDK Kuralı: Aylık taksitler net gelirin %40'ını geçemez
+// ============================================
+const BANKS = {
+  HAL: { 
+    name: "Halkbank", 
+    ratingName: "A-E Skala",
+    multipliers: {limit: 3.0, risk: 0.9},
+    minFindeks: 1000,
+    icraLimit: 15000,
+    color: "#dc143c",
+    features: ["Esnaf dostu", "1000+ findeks yeterli", "İcra toleransı yüksek"],
+    algorithm: "esnaf_friendly",
+    dtiLimit: 50, // BDDK limiti %50
+    maxProductCount: 6,
+    salaryMultiplier: 1.1,
+    artisanBonus: 40,
+    delayTolerance: 2
+  },
+  ZIR: { 
+    name: "Ziraat", 
+    ratingName: "1-5 Sistem",
+    multipliers: {limit: 3.2, risk: 0.95},
+    minFindeks: 1050,
+    icraLimit: 10000,
+    color: "#e60000",
+    features: ["Tarım destekli", "Kamu çalışanlarına özel"],
+    algorithm: "public_focused",
+    dtiLimit: 50,
+    maxProductCount: 6,
+    salaryMultiplier: 1.15,
+    publicBonus: 30,
+    delayTolerance: 1
+  },
+  IS: { 
+    name: "İş Bankası", 
+    ratingName: "AAA-D",
+    multipliers: {limit: 3.0, risk: 1.0},
+    minFindeks: 1100,
+    icraLimit: 0,
+    color: "#003087",
+    features: ["Maaş müşterisi avantajı", "Dijital değerlendirme"],
+    algorithm: "salary_focused",
+    dtiLimit: 45,
+    maxProductCount: 5,
+    salaryMultiplier: 1.2,
+    salaryBonus: 50,
+    delayTolerance: 0
+  },
+  VAK: { 
+    name: "Vakıfbank", 
+    ratingName: "S1-S5",
+    multipliers: {limit: 3.1, risk: 0.95},
+    minFindeks: 1050,
+    icraLimit: 10000,
+    color: "#eab308",
+    features: ["Orta riskli profiller", "Emekli dostu"],
+    algorithm: "balanced",
+    dtiLimit: 50,
+    maxProductCount: 6,
+    salaryMultiplier: 1.1,
+    pensionBonus: 40,
+    delayTolerance: 1
+  },
+  GAR: { 
+    name: "Garanti", 
+    ratingName: "Plat-Bronz",
+    multipliers: {limit: 2.8, risk: 1.1},
+    minFindeks: 1150,
+    icraLimit: 0,
+    color: "#16a34a",
+    features: ["Dijital skor ağırlıklı", "1500+ otomatik onay"],
+    algorithm: "digital_first",
+    dtiLimit: 40,
+    maxProductCount: 5,
+    salaryMultiplier: 1.05,
+    autoApproveScore: 1500,
+    delayTolerance: 0
+  },
+  YK: { 
+    name: "Yapı Kredi", 
+    ratingName: "A1-C",
+    multipliers: {limit: 2.9, risk: 1.05},
+    minFindeks: 1100,
+    icraLimit: 5000,
+    color: "#ea580c",
+    features: ["Kart ilişkisi önemli", "Yüksek limit tercihi"],
+    algorithm: "card_focused",
+    dtiLimit: 45,
+    maxProductCount: 5,
+    salaryMultiplier: 1.1,
+    cardRelationBonus: 30,
+    delayTolerance: 0
+  },
+  AKB: { 
+    name: "Akbank", 
+    ratingName: "R1-R6",
+    multipliers: {limit: 2.5, risk: 1.2},
+    minFindeks: 1200,
+    icraLimit: 0,
+    color: "#0369a1",
+    features: ["En katı politikalar", "1400+ findeks şart"],
+    algorithm: "strict",
+    dtiLimit: 40,
+    maxProductCount: 4,
+    salaryMultiplier: 1.0,
+    strictPenalty: 60,
+    delayTolerance: 0
+  },
+  QNB: { 
+    name: "QNB", 
+    ratingName: "PPC Skor",
+    multipliers: {limit: 2.8, risk: 0.9},
+    minFindeks: 1150,
+    icraLimit: 5000,
+    color: "#9333ea",
+    features: ["Yüksek gelir alternatifi", "POS cirosu değerlendirmesi"],
+    algorithm: "income_focused",
+    dtiLimit: 45,
+    maxProductCount: 5,
+    salaryMultiplier: 1.15,
+    highIncomeBonus: 40,
+    delayTolerance: 0
+  }
+};
+
+// ============================================
+// 7 KATEGORİ DEĞERLENDİRME SİSTEMİ
+// ============================================
+const CATEGORY_WEIGHTS = {
+  krediNotu: { weight: 25, name: "Kredi Notu Analizi", icon: "📊" },
+  kanuniTakip: { weight: 20, name: "Kanuni Takip Kontrolü", icon: "⚖️" },
+  limitKullanim: { weight: 15, name: "Limit Kullanım Oranı", icon: "💳" },
+  gecikmeGecmisi: { weight: 15, name: "Gecikme Geçmişi", icon: "⏰" },
+  yapilandirma: { weight: 10, name: "Yeniden Yapılandırma", icon: "🔄" },
+  aktifBorc: { weight: 10, name: "Aktif Borç Yükü", icon: "💰" },
+  odemeTarihcesi: { weight: 5, name: "Ödeme Tarihçesi", icon: "📅" }
+};
+
+let charts = {};
+let currentResults = [];
+let currentCustomer = {};
+let lastPdfData = null;
+let categoryScores = {};
+
+function el(id) { return document.getElementById(id); }
+
+// TC Kimlik No Maskeleme
+function maskTC(input) {
+  let value = input.value.replace(/\D/g, '');
+  if (value.length > 11) value = value.slice(0, 11);
+  input.value = value;
+}
+
+function getMaskedTC(tc) {
+  if (!tc || tc.length !== 11) return tc;
+  return "*****" + tc.slice(5);
+}
+
+function debugLog(msg) {
+  console.log(msg);
+  const debugBox = el("debugBox");
+  if(debugBox) {
+    debugBox.style.display = "block";
+    debugBox.innerHTML += msg + "<br>";
+  }
+}
+
+function doLogin() {
+  const u = el("lUser").value.trim();
+  const p = el("lPass").value.trim();
+  if(u === "sedat" && p === "4040") {
+    el("loginScreen").style.display = "none";
+    el("mainApp").style.display = "block";
+  } else {
+    alert("Hatalı giriş bilgileri");
+  }
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  ['evaluateTab','historyTab','findexTab'].forEach(t => el(t).style.display = 'none');
+  el(tab + 'Tab').style.display = 'block';
+  
+  if(tab === 'history') loadAllHistory();
+}
+
+function showError(msg) {
+  const box = el("errorBox");
+  box.textContent = msg;
+  box.style.display = "block";
+  setTimeout(() => box.style.display = "none", 5000);
+}
+
+function showSuccess(msg) {
+  const box = el("successBox");
+  box.textContent = msg;
+  box.style.display = "block";
+  setTimeout(() => box.style.display = "none", 5000);
+}
+
+function resetForm() {
+  document.querySelectorAll('input[type="text"], input[type="number"]').forEach(inp => {
+    if(!['lUser','lPass'].includes(inp.id)) inp.value = '';
+  });
+  document.querySelectorAll('select').forEach(sel => {
+    if(sel.options.length > 0) sel.selectedIndex = 0;
+  });
+  el("resultBox").classList.remove("show");
+  el("currentInst").value = "0";
+  el("loanCount").value = "0";
+  el("findexPreview").style.display = "none";
+  el("autoFillInfo").style.display = "none";
+  el("categoryAssessment").innerHTML = "";
+  el("algorithmAnalysis").innerHTML = "";
+  el("incomeExpenseAnalysis").innerHTML = "";
+  currentResults = [];
+  currentCustomer = {};
+  lastPdfData = null;
+  categoryScores = {};
+}
+
+function updateFindexPreview() {
+  const score = parseInt(el("findeks").value) || 0;
+  const preview = el("findexPreview");
+  const bar = el("findexBar");
+  const status = el("findexStatus");
+  const risk = el("findexRisk");
+  const advice = el("findexAdvice");
+  
+  if(score > 0) {
+    preview.style.display = "block";
+    bar.style.width = (score/1900*100) + "%";
+    
+    if(score >= 1700) {
+      bar.className = "findex-fill finex-excellent";
+      status.textContent = "Mükemmel (1700+)";
+      risk.textContent = "DÜŞÜK RİSK";
+      risk.style.color = "#10b981";
+      advice.textContent = "Tüm bankalarda A/1 rating alırsınız. En yüksek limitler ve en düşük faizler size özel.";
+    } else if(score >= 1400) {
+      bar.className = "findex-fill finex-good";
+      status.textContent = "İyi (1400-1699)";
+      risk.textContent = "ORTA-DÜŞÜK RİSK";
+      risk.style.color = "#3b82f6";
+      advice.textContent = "Standart onay alırsınız. 5-6 maaş limit çarpanı uygulanır.";
+    } else if(score >= 1200) {
+      bar.className = "findex-fill finex-mid";
+      status.textContent = "Orta (1200-1399)";
+      risk.textContent = "ORTA RİSK";
+      risk.style.color = "#f59e0b";
+      advice.textContent = "GM (Görüşmeli Onay) ile sonuçlanabilir. Limit çarpanı 4-5 arası.";
+    } else if(score >= 1000) {
+      bar.className = "findex-fill finex-bad";
+      status.textContent = "Riskli (1000-1199)";
+      risk.textContent = "YÜKSEK RİSK";
+      risk.style.color = "#ef4444";
+      advice.textContent = "Sadece Halkbank, Ziraat gibi kamu bankaları değerlendirir. Teminat/kefil gerekli.";
+    } else {
+      bar.className = "findex-fill finex-risk";
+      status.textContent = "Çok Riskli (<1000)";
+      risk.textContent = "KABUL EDİLEMEZ";
+      risk.style.color = "#7c2d12";
+      advice.textContent = "Kredi almanız çok zor. Önce findeksinizi 1000+ çıkarın.";
+    }
+  } else {
+    preview.style.display = "none";
+  }
+}
+
+// ============================================
+// 7 KATEGORİ DEĞERLENDİRME FONKSİYONU
+// ============================================
+function calculateCategoryScores(data, pdfData) {
+  const scores = {};
+  
+  // 1. Kredi Notu Analizi (25%)
+  let krediNotuPuan = 0;
+  if (data.findeks >= 1700) krediNotuPuan = 100;
+  else if (data.findeks >= 1500) krediNotuPuan = 90;
+  else if (data.findeks >= 1300) krediNotuPuan = 80;
+  else if (data.findeks >= 1100) krediNotuPuan = 70;
+  else if (data.findeks >= 1000) krediNotuPuan = 60;
+  else if (data.findeks >= 800) krediNotuPuan = 40;
+  else krediNotuPuan = 20;
+  scores.krediNotu = {
+    puan: krediNotuPuan,
+    detay: `Findeks: ${data.findeks} / 1900`,
+    durum: krediNotuPuan >= 80 ? 'Pozitif' : krediNotuPuan >= 60 ? 'Nötr' : 'Negatif'
+  };
+  
+  // 2. Kanuni Takip Kontrolü (20%)
+  let kanuniTakipPuan = 100;
+  let kanuniTakipDetay = "Hiç yasal takip kaydı bulunamadı";
+  if (data.legal === "high") {
+    kanuniTakipPuan = 0;
+    kanuniTakipDetay = "50.000 TL üzeri icra/takip kaydı mevcut";
+  } else if (data.legal === "medium") {
+    kanuniTakipPuan = 30;
+    kanuniTakipDetay = "10.000-50.000 TL arası icra/takip kaydı mevcut";
+  } else if (data.legal === "small") {
+    kanuniTakipPuan = 60;
+    kanuniTakipDetay = "10.000 TL altı icra/takip kaydı mevcut";
+  }
+  scores.kanuniTakip = {
+    puan: kanuniTakipPuan,
+    detay: kanuniTakipDetay,
+    durum: kanuniTakipPuan >= 80 ? 'Pozitif' : kanuniTakipPuan >= 50 ? 'Nötr' : 'Negatif'
+  };
+  
+  // 3. Limit Kullanım Oranı (15%)
+  const utilizationRate = pdfData?.utilizationRate || 0;
+  let limitKullanimPuan = 100;
+  let limitKullanimDetay = `Limit Kullanım Oranı: %${utilizationRate}`;
+  if (utilizationRate > 90) {
+    limitKullanimPuan = 30;
+    limitKullanimDetay += " - Çok yüksek kullanım";
+  } else if (utilizationRate > 70) {
+    limitKullanimPuan = 60;
+    limitKullanimDetay += " - Yüksek kullanım";
+  } else if (utilizationRate > 50) {
+    limitKullanimPuan = 80;
+    limitKullanimDetay += " - Orta kullanım";
+  } else {
+    limitKullanimPuan = 100;
+    limitKullanimDetay += " - İyi kullanım";
+  }
+  scores.limitKullanim = {
+    puan: limitKullanimPuan,
+    detay: limitKullanimDetay,
+    durum: limitKullanimPuan >= 80 ? 'Pozitif' : limitKullanimPuan >= 60 ? 'Nötr' : 'Negatif'
+  };
+  
+  // 4. Gecikme Geçmişi (15%)
+  let gecikmePuan = 100;
+  let gecikmeDetay = "Gecikme kaydı bulunmamaktadır";
+  if (data.delay === "3") {
+    gecikmePuan = 20;
+    gecikmeDetay = "3+ gecikme veya 30+ gün gecikme mevcut";
+  } else if (data.delay === "1") {
+    gecikmePuan = 70;
+    gecikmeDetay = "1-2 defa 1-30 gün gecikme mevcut";
+  }
+  scores.gecikmeGecmisi = {
+    puan: gecikmePuan,
+    detay: gecikmeDetay,
+    durum: gecikmePuan >= 80 ? 'Pozitif' : gecikmePuan >= 60 ? 'Nötr' : 'Negatif'
+  };
+  
+  // 5. Yeniden Yapılandırma (10%)
+  let yapilandirmaPuan = 100;
+  let yapilandirmaDetay = "Yeniden yapılandırma kaydı bulunmamaktadır";
+  // PDF'den yapılandırma bilgisi varsa burada değerlendirilir
+  scores.yapilandirma = {
+    puan: yapilandirmaPuan,
+    detay: yapilandirmaDetay,
+    durum: 'Pozitif'
+  };
+  
+  // 6. Aktif Borç Yükü (10%)
+  const totalDebt = pdfData?.totalDebt || 0;
+  const income = data.income || 1;
+  const debtToIncomeRatio = (totalDebt / income) * 100;
+  let borcPuan = 100;
+  let borcDetay = `Toplam Borç: ${totalDebt.toLocaleString()} TL (${debtToIncomeRatio.toFixed(1)} aylık gelir)`;
+  if (debtToIncomeRatio > 24) {
+    borcPuan = 40;
+    borcDetay += " - Yüksek borç yükü";
+  } else if (debtToIncomeRatio > 12) {
+    borcPuan = 70;
+    borcDetay += " - Orta borç yükü";
+  } else {
+    borcPuan = 100;
+    borcDetay += " - Düşük borç yükü";
+  }
+  scores.aktifBorc = {
+    puan: borcPuan,
+    detay: borcDetay,
+    durum: borcPuan >= 80 ? 'Pozitif' : borcPuan >= 60 ? 'Nötr' : 'Negatif'
+  };
+  
+  // 7. Ödeme Tarihçesi (5%)
+  let odemePuan = 100;
+  let odemeDetay = "Düzenli ödeme performansı";
+  if (data.delay !== "0") {
+    odemePuan = 50;
+    odemeDetay = "Ödeme tarihçesinde gecikmeler mevcut";
+  }
+  scores.odemeTarihcesi = {
+    puan: odemePuan,
+    detay: odemeDetay,
+    durum: odemePuan >= 80 ? 'Pozitif' : odemePuan >= 50 ? 'Nötr' : 'Negatif'
+  };
+  
+  return scores;
+}
+
+function calculateTotalScore(scores) {
+  let total = 0;
+  let maxPossible = 0;
+  
+  for (const [key, category] of Object.entries(CATEGORY_WEIGHTS)) {
+    if (scores[key]) {
+      total += scores[key].puan * (category.weight / 100);
+      maxPossible += category.weight;
+    }
+  }
+  
+  return Math.round(total);
+}
+
+function renderCategoryAssessment(scores) {
+  const totalScore = calculateTotalScore(scores);
+  const container = el("categoryAssessment");
+  
+  const getStatusClass = (status) => {
+    if (status === 'Pozitif') return 'status-positive';
+    if (status === 'Nötr') return 'status-neutral';
+    return 'status-negative';
+  };
+  
+  const getScoreCircleClass = (score) => {
+    if (score >= 80) return '';
+    if (score >= 50) return 'warning';
+    return 'danger';
+  };
+  
+  let rows = '';
+  for (const [key, category] of Object.entries(CATEGORY_WEIGHTS)) {
+    if (scores[key]) {
+      rows += `
+        <tr>
+          <td>
+            <div class="category-name">
+              <div class="category-icon" style="background:rgba(59,130,246,0.15);">${category.icon}</div>
+              ${category.name}
+            </div>
+          </td>
+          <td class="category-detail">${scores[key].detay}</td>
+          <td class="category-points">${scores[key].puan}/100</td>
+          <td><span class="category-status ${getStatusClass(scores[key].durum)}">${scores[key].durum}</span></td>
+        </tr>
+      `;
+    }
+  }
+  
+  container.innerHTML = `
+    <div class="category-assessment">
+      <div class="category-header">
+        <div class="category-title">📋 7 Temel Kategori Değerlendirmesi</div>
+        <div class="category-score">
+          <div class="score-circle ${getScoreCircleClass(totalScore)}">
+            <div class="score-value" style="color:${totalScore >= 80 ? '#10b981' : totalScore >= 50 ? '#f59e0b' : '#ef4444'}">${totalScore}</div>
+            <div class="score-label">/ 100</div>
+          </div>
+        </div>
+      </div>
+      <table class="category-table">
+        <thead>
+          <tr>
+            <th>Kategori</th>
+            <th>Detay</th>
+            <th>Puan (100)</th>
+            <th>Durum</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ============================================
+// GELİR/GİDER ANALİZİ - BDDK KURALLARINA GÖRE
+// ============================================
+// BDDK Kuralı 1: Aylık taksitler net gelirin %40'ını geçemez (DTI)
+// BDDK Kuralı 2: Toplam borç yükü/yıllık gelir oranı %70'i geçmemeli
+// ============================================
+function renderIncomeExpenseAnalysis(data, pdfData) {
+  const income = data.income || 0;
+  const totalDebt = pdfData?.totalDebt || 0;
+  const currentInst = data.currentInst || 0;
+  const requested = data.requested || 0;
+  
+  // Yeni kredi için 36 ay vade ile tahmini aylık taksit
+  // Faiz oranı yaklaşık %3-4 aylık (yıllık %40 civarı)
+  const monthlyInterestRate = 0.035; // %3.5 aylık faiz
+  const vade = 36;
+  
+  // Anüite formülü ile aylık taksit hesaplama
+  // Taksit = P * [r(1+r)^n] / [(1+r)^n - 1]
+  const newLoanPayment = requested > 0 
+    ? Math.round(requested * (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, vade)) / (Math.pow(1 + monthlyInterestRate, vade) - 1))
+    : 0;
+  
+  // Toplam aylık gider (mevcut taksitler + yeni kredi)
+  const totalMonthlyExpense = currentInst + newLoanPayment;
+  
+  // BDDK DTI Oranı (Aylık taksit / Aylık gelir)
+  const dtiRatio = income > 0 ? (totalMonthlyExpense / income) * 100 : 0;
+  const dtiStatus = dtiRatio <= 40 ? 'UYGUN' : dtiRatio <= 50 ? 'SINIRDA' : 'RİSKLİ';
+  const dtiColor = dtiRatio <= 40 ? '#10b981' : dtiRatio <= 50 ? '#f59e0b' : '#ef4444';
+  
+  // BDDK Toplam Borç/Gelir Oranı (Yıllık bazda)
+  // Toplam borç / Yıllık gelir <= %70 olmalı
+  const annualIncome = income * 12;
+  const totalDebtRatio = annualIncome > 0 ? (totalDebt / annualIncome) * 100 : 0;
+  const debtStatus = totalDebtRatio <= 70 ? 'UYGUN' : totalDebtRatio <= 85 ? 'SINIRDA' : 'RİSKLİ';
+  const debtColor = totalDebtRatio <= 70 ? '#10b981' : totalDebtRatio <= 85 ? '#f59e0b' : '#ef4444';
+  
+  // Kalan ödeme kapasitesi
+  const remainingCapacity = income - totalMonthlyExpense;
+  const maxAllowedPayment = income * 0.40; // BDDK max %40
+  const availableCapacity = Math.max(0, maxAllowedPayment - currentInst);
+  
+  // BDDK'ya göre maksimum kredi tutarı
+  const maxLoanByDTI = availableCapacity > 0 
+    ? Math.round(availableCapacity * vade * 0.6) // Konservatif hesaplama
+    : 0;
+  
+  const container = el("incomeExpenseAnalysis");
+  container.innerHTML = `
+    <h3 style="margin:24px 0 16px 0;">💰 Gelir / Gider Analizi (BDDK Kuralları)</h3>
+    
+    <!-- Temel Bilgiler -->
+    <div class="income-expense-grid">
+      <div class="income-box">
+        <div class="box-label">Aylık Net Gelir</div>
+        <div class="box-value" style="color:#10b981">${income.toLocaleString()} TL</div>
+        <div class="box-sub">Yıllık: ${annualIncome.toLocaleString()} TL</div>
+      </div>
+      <div class="expense-box">
+        <div class="box-label">Toplam Aylık Taksit</div>
+        <div class="box-value" style="color:#ef4444">${totalMonthlyExpense.toLocaleString()} TL</div>
+        <div class="box-sub">Mevcut: ${currentInst.toLocaleString()} TL + Yeni: ${newLoanPayment.toLocaleString()} TL</div>
+      </div>
+      <div class="net-box">
+        <div class="box-label">Kalan Ödeme Kapasitesi</div>
+        <div class="box-value" style="color:${remainingCapacity >= 0 ? '#3b82f6' : '#ef4444'}">${remainingCapacity.toLocaleString()} TL</div>
+        <div class="box-sub">BDDK Max: ${maxAllowedPayment.toLocaleString()} TL (%40)</div>
+      </div>
+    </div>
+    
+    <!-- BDDK Oranları -->
+    <div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:20px;margin-top:20px;">
+      <h4 style="margin:0 0 16px 0;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">📊 BDDK Uyum Oranları</h4>
+      
+      <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:20px;">
+        <!-- DTI Oranı -->
+        <div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:13px;color:var(--muted);">DTI Oranı (Taksit/Gelir)</span>
+            <span style="font-size:12px;padding:4px 10px;border-radius:12px;background:${dtiRatio <= 40 ? 'rgba(16,185,129,0.2)' : dtiRatio <= 50 ? 'rgba(245,158,11,0.2)' : 'rgba(239,68,68,0.2)'};color:${dtiColor};font-weight:600;">${dtiStatus}</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span style="font-size:32px;font-weight:800;color:${dtiColor};">%${dtiRatio.toFixed(1)}</span>
+            <span style="font-size:13px;color:var(--muted);">/ %40 (BDDK Limit)</span>
+          </div>
+          <div style="margin-top:12px;background:rgba(0,0,0,0.3);border-radius:8px;height:24px;overflow:hidden;">
+            <div style="width:${Math.min(dtiRatio, 100)}%;height:100%;background:linear-gradient(90deg, ${dtiColor}, ${dtiColor}aa);border-radius:8px;transition:width 0.5s ease;"></div>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--muted);">
+            ${dtiRatio <= 40 ? '✅ BDDK limiti içinde' : '⚠️ BDDK %40 limitini aşıyor'}
+          </div>
+        </div>
+        
+        <!-- Toplam Borç/Gelir Oranı -->
+        <div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:13px;color:var(--muted);">Toplam Borç/Yıllık Gelir</span>
+            <span style="font-size:12px;padding:4px 10px;border-radius:12px;background:${totalDebtRatio <= 70 ? 'rgba(16,185,129,0.2)' : totalDebtRatio <= 85 ? 'rgba(245,158,11,0.2)' : 'rgba(239,68,68,0.2)'};color:${debtColor};font-weight:600;">${debtStatus}</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span style="font-size:32px;font-weight:800;color:${debtColor};">%${totalDebtRatio.toFixed(1)}</span>
+            <span style="font-size:13px;color:var(--muted);">/ %70 (BDDK Limit)</span>
+          </div>
+          <div style="margin-top:12px;background:rgba(0,0,0,0.3);border-radius:8px;height:24px;overflow:hidden;">
+            <div style="width:${Math.min(totalDebtRatio, 100)}%;height:100%;background:linear-gradient(90deg, ${debtColor}, ${debtColor}aa);border-radius:8px;transition:width 0.5s ease;"></div>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--muted);">
+            ${totalDebtRatio <= 70 ? '✅ BDDK limiti içinde' : '⚠️ BDDK %70 limitini aşıyor'}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Maksimum Kredi Tutarı -->
+      <div style="margin-top:16px;background:linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1));border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">BDDK'ya Göre Maksimum Kredi Tutarı</div>
+            <div style="font-size:24px;font-weight:800;color:var(--purple);margin-top:4px;">${maxLoanByDTI.toLocaleString()} TL</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px;color:var(--muted);">İstenen Tutar</div>
+            <div style="font-size:18px;font-weight:700;color:${requested <= maxLoanByDTI ? '#10b981' : '#ef4444'};">${requested.toLocaleString()} TL</div>
+          </div>
+        </div>
+        ${requested > maxLoanByDTI ? `
+          <div style="margin-top:12px;padding:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;font-size:12px;color:#fecaca;">
+            ⚠️ İstenen tutar BDDK limitini aşıyor. Maximum ${maxLoanByDTI.toLocaleString()} TL başvuru yapabilirsiniz.
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// ============================================
+// BANKA ALGORİTMASI ANALİZİ
+// ============================================
+function renderAlgorithmAnalysis(data, pdfData, bankResults) {
+  const container = el("algorithmAnalysis");
+  const bestResult = bankResults[0];
+  const bank = BANKS[bestResult.bank];
+  
+  const income = data.income || 0;
+  const totalDebt = pdfData?.totalDebt || 0;
+  const utilizationRate = pdfData?.utilizationRate || 0;
+  
+  // Algoritma parametreleri
+  const findeksImpact = data.findeks >= bank.minFindeks ? "Olumlu" : "Olumsuz (Min: " + bank.minFindeks + ")";
+  const dtiValue = ((data.currentInst + (data.requested * 0.035)) / income * 100).toFixed(1);
+  const dtiStatus = parseFloat(dtiValue) <= bank.dtiLimit ? "Kabul" : "Red";
+  const productStatus = data.loanCount <= bank.maxProductCount ? "Kabul" : "Red";
+  
+  container.innerHTML = `
+    <div class="algo-analysis">
+      <div class="algo-header">
+        <div class="algo-title">🔍 ${bank.name} Algoritma Analizi</div>
+        <span class="category-status ${bestResult.decision === 'ONAY' ? 'status-positive' : bestResult.decision === 'GM' ? 'status-neutral' : 'status-negative'}">${bestResult.decision}</span>
+      </div>
+      <div class="algo-grid">
+        <div class="algo-item">
+          <div class="algo-item-title">Findeks Eşiği</div>
+          <div class="algo-item-value" style="color:${data.findeks >= bank.minFindeks ? '#10b981' : '#ef4444'}">${data.findeks} / ${bank.minFindeks}</div>
+          <div class="algo-item-desc">${findeksImpact}</div>
+        </div>
+        <div class="algo-item">
+          <div class="algo-item-title">DTI Limiti</div>
+          <div class="algo-item-value" style="color:${dtiStatus === 'Kabul' ? '#10b981' : '#ef4444'}">%${dtiValue} / %${bank.dtiLimit}</div>
+          <div class="algo-item-desc">${dtiStatus}</div>
+        </div>
+        <div class="algo-item">
+          <div class="algo-item-title">Ürün Sayısı</div>
+          <div class="algo-item-value" style="color:${productStatus === 'Kabul' ? '#10b981' : '#ef4444'}">${data.loanCount} / ${bank.maxProductCount}</div>
+          <div class="algo-item-desc">${productStatus}</div>
+        </div>
+        <div class="algo-item">
+          <div class="algo-item-title">Limit Çarpanı</div>
+          <div class="algo-item-value">${bank.multipliers.limit}x</div>
+          <div class="algo-item-desc">Maaş ile çarpılır</div>
+        </div>
+        <div class="algo-item">
+          <div class="algo-item-title">İcra Toleransı</div>
+          <div class="algo-item-value">${bank.icraLimit > 0 ? bank.icraLimit.toLocaleString() + ' TL' : 'Yok'}</div>
+          <div class="algo-item-desc">${data.legal === 'no' ? 'Temiz' : 'İcra mevcut'}</div>
+        </div>
+        <div class="algo-item">
+          <div class="algo-item-title">Özel Bonus</div>
+          <div class="algo-item-value">${getBonusAmount(bank, data)}</div>
+          <div class="algo-item-desc">Müşteri tipine göre</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getBonusAmount(bank, data) {
+  if (bank.algorithm === "esnaf_friendly" && (data.job === "self" || data.customerType === "artisan")) {
+    return "+" + bank.artisanBonus + " puan";
+  }
+  if (bank.algorithm === "public_focused" && data.job === "public") {
+    return "+" + bank.publicBonus + " puan";
+  }
+  if (bank.algorithm === "salary_focused" && data.customerType === "salary") {
+    return "+" + bank.salaryBonus + " puan";
+  }
+  if (bank.algorithm === "income_focused" && data.income > 100000) {
+    return "+" + bank.highIncomeBonus + " puan";
+  }
+  return "Yok";
+}
+
+// ============================================
+// GERÇEKÇİ BANKA HESAPLAMA - 2025/2026
+// ============================================
+function calculateBankSpecific(bankKey, data, pdfData) {
+  const bank = BANKS[bankKey];
+  let baseScore = 500;
+  
+  // GERÇEKÇİ LİMİT HESAPLAMASI
+  // Temel limit = Gelir x Çarpan
+  let limit = data.income * bank.multipliers.limit;
+  
+  // BDDK Kuralı: Aylık taksit net gelirin %40'ını geçemez
+  // Maksimum kredi = (Aylık Gelir x 0.40 - Mevcut Taksitler) x Vade
+  // 36 ay vade için basitleştirilmiş hesaplama
+  const maxMonthlyPayment = data.income * 0.40;
+  const availableMonthlyPayment = Math.max(0, maxMonthlyPayment - data.currentInst);
+  const bddkLimit = availableMonthlyPayment * 36; // 36 ay vade
+  
+  // İki limitin minimumunu al
+  limit = Math.min(limit, bddkLimit);
+  
+  // Findeks etkisi (daha gerçekçi)
+  let findeksImpact = 0;
+  if(data.findeks >= 1700) findeksImpact = 150;
+  else if(data.findeks >= 1500) findeksImpact = 120;
+  else if(data.findeks >= 1400) findeksImpact = 100;
+  else if(data.findeks >= 1300) findeksImpact = 80;
+  else if(data.findeks >= 1200) findeksImpact = 60;
+  else if(data.findeks >= 1100) findeksImpact = 40;
+  else if(data.findeks >= 1000) findeksImpact = 20;
+  else findeksImpact = -100;
+  
+  baseScore += findeksImpact;
+  
+  // Minimum findeks cezası
+  if(data.findeks < bank.minFindeks) {
+    baseScore -= (bank.minFindeks - data.findeks) * 0.5;
+    limit *= 0.7; // Düşük findeks = düşük limit
+  }
+  
+  // Gelir etkisi (daha gerçekçi)
+  if(data.income > 50000) baseScore += 30;
+  else if(data.income > 30000) baseScore += 20;
+  else if(data.income > 15000) baseScore += 10;
+  
+  // Algoritma bazlı bonuslar (düşürüldü)
+  if(bank.algorithm === "esnaf_friendly" && (data.job === "self" || data.customerType === "artisan")) {
+    baseScore += bank.artisanBonus || 40;
+    limit *= 1.1;
+  }
+  
+  if(bank.algorithm === "strict" && data.findeks < 1300) {
+    baseScore -= bank.strictPenalty || 60;
+  }
+  
+  if(bank.algorithm === "digital_first" && data.findeks < bank.autoApproveScore) {
+    baseScore -= 30;
+  }
+  
+  if(bank.algorithm === "public_focused" && data.job === "public") {
+    baseScore += bank.publicBonus || 30;
+    limit *= bank.salaryMultiplier || 1.15;
+  }
+  
+  if(bank.algorithm === "salary_focused" && data.customerType === "salary") {
+    baseScore += bank.salaryBonus || 50;
+    limit *= bank.salaryMultiplier || 1.2;
+  }
+  
+  if(bank.algorithm === "income_focused" && data.income > 50000) {
+    baseScore += bank.highIncomeBonus || 40;
+  }
+  
+  // İcra/Takip etkisi
+  if(data.legal !== "no") {
+    const icraAmount = data.legal === "small" ? 5000 : data.legal === "medium" ? 25000 : 60000;
+    if(icraAmount > bank.icraLimit) {
+      baseScore -= 150;
+      limit *= 0.3;
+    } else {
+      baseScore -= 50;
+      limit *= 0.6;
+    }
+  }
+  
+  // Diğer faktörler
+  if(data.workDuration === "24+") baseScore += 25;
+  if(data.workDuration === "12-24") baseScore += 15;
+  if(data.housing === "owner") baseScore += 20;
+  if(data.housing === "family") baseScore += 10;
+  if(data.delay === "3") baseScore -= 80;
+  else if(data.delay === "1") baseScore -= 40;
+  if(data.reject === "yes") baseScore -= 60;
+  if(data.loanCount > bank.maxProductCount) baseScore -= (data.loanCount - bank.maxProductCount) * 20;
+  
+  // Limit kullanım oranı etkisi
+  const utilizationRate = pdfData?.utilizationRate || 0;
+  if(utilizationRate > 90) {
+    baseScore -= 50;
+    limit *= 0.8;
+  } else if(utilizationRate > 70) {
+    baseScore -= 25;
+    limit *= 0.9;
+  }
+  
+  // Findex bazlı limit ayarlaması
+  if(data.findeks < 1200) limit *= 0.8;
+  if(data.findeks < 1000) limit *= 0.6;
+  
+  // Limiti 1000 TL'lik katlara yuvarla
+  limit = Math.floor(limit / 1000) * 1000;
+  
+  // DTI hesaplama (BDDK kurallarına göre)
+  const monthlyPayment = data.requested / 36;
+  const totalDTI = ((data.currentInst + monthlyPayment) / data.income) * 100;
+  
+  // Karar verme
+  let decision, confidence;
+  const finalScore = Math.max(0, Math.min(1000, baseScore));
+  
+  // İcra red şartı
+  if(data.legal !== "no" && (data.legal === "high" || (data.legal === "medium" && bank.icraLimit < 15000))) {
+    decision = "RET";
+    confidence = 10;
+  }
+  // DTI red şartı - BDDK %40 kuralı
+  else if(totalDTI > 50) {
+    decision = "RET";
+    confidence = 15;
+  }
+  // Onay şartları
+  else if(finalScore >= 700 && data.requested <= limit && totalDTI <= bank.dtiLimit) {
+    decision = "ONAY";
+    confidence = 55 + ((finalScore - 700) / 300) * 30;
+    if(data.findeks >= bank.minFindeks + 150) confidence += 10;
+  }
+  // GM şartları
+  else if(finalScore >= 580 && totalDTI <= bank.dtiLimit + 5 && data.findeks >= bank.minFindeks - 100) {
+    decision = "GM";
+    confidence = 35 + ((finalScore - 580) / 420) * 25;
+    limit = Math.min(limit, data.requested * 0.8);
+  }
+  // Red
+  else {
+    decision = "RET";
+    confidence = Math.max(5, (finalScore / 1000) * 20);
+  }
+  
+  // Rating hesaplama
+  let rating;
+  if(bankKey === "HAL") rating = finalScore >= 850 ? "A" : finalScore >= 750 ? "B" : finalScore >= 650 ? "C" : finalScore >= 550 ? "D" : "E";
+  else if(bankKey === "ZIR") rating = finalScore >= 850 ? "1" : finalScore >= 750 ? "2" : finalScore >= 650 ? "3" : finalScore >= 550 ? "4" : "5";
+  else if(bankKey === "AKB") rating = finalScore >= 800 ? "R1" : finalScore >= 700 ? "R2" : finalScore >= 600 ? "R3" : finalScore >= 500 ? "R4" : "R5-R6";
+  else rating = finalScore >= 800 ? "A/1" : finalScore >= 700 ? "B/2" : finalScore >= 600 ? "C/3" : finalScore >= 500 ? "D/4" : "E/5";
+  
+  return {
+    bank: bankKey,
+    bankName: bank.name,
+    decision: decision,
+    confidence: Math.round(confidence),
+    score: finalScore,
+    rating: rating,
+    limit: limit,
+    dti: totalDTI.toFixed(1),
+    color: bank.color,
+    reasoning: generateReasoning(bankKey, data, decision, finalScore, pdfData)
+  };
+}
+
+function generateReasoning(bank, data, decision, score, pdfData) {
+  const b = BANKS[bank];
+  const reasons = [];
+  
+  if(data.legal !== "no") reasons.push("İcra kaydı");
+  if(data.findeks < b.minFindeks) reasons.push(`Düşük findeks (min:${b.minFindeks})`);
+  if(data.reject === "yes") reasons.push("Son red kaydı");
+  if(data.job === "construction") reasons.push("Riskli sektör");
+  if(pdfData?.utilizationRate > 80) reasons.push("Yüksek limit kullanımı");
+  if(data.loanCount > b.maxProductCount) reasons.push("Çok fazla ürün");
+  if(score > 750) reasons.push("Güçlü profil");
+  if(b.algorithm === "esnaf_friendly" && (data.job === "self")) reasons.push("Esnaf avantajı");
+  if(b.algorithm === "public_focused" && data.job === "public") reasons.push("Kamu avantajı");
+  
+  return reasons.join(", ") || "Standart değerlendirme";
+}
+
+function calculate() {
+  const fullName = el("fullName").value.trim();
+  const tcRaw = el("tc").value.trim();
+  
+  const data = {
+    tc: tcRaw,
+    findeks: parseInt(el("findeks").value) || 0,
+    income: parseInt(el("income").value) || 0,
+    requested: parseInt(el("requested").value) || 0,
+    currentInst: parseInt(el("currentInst").value) || 0,
+    customerType: el("customerType").value,
+    job: el("job").value,
+    workDuration: el("workDuration").value,
+    housing: el("housing").value,
+    loanCount: parseInt(el("loanCount").value) || 0,
+    delay: el("delay").value,
+    reject: el("recentReject").value,
+    legal: el("legalFollow").value,
+    bank: el("bank").value
+  };
+  
+  if(!data.tc || data.tc.length !== 11) { showError("Geçerli TC Kimlik No giriniz (11 hane)"); return; }
+  if(!fullName) { showError("Müşteri Ad Soyad zorunludur"); return; }
+  if(!data.findeks || data.findeks < 0 || data.findeks > 1900) { showError("Geçerli Findeks giriniz"); return; }
+  if(!data.income) { showError("Geçerli gelir giriniz"); return; }
+  if(!data.requested) { showError("İstenen tutar giriniz"); return; }
+  
+  // 7 Kategori değerlendirmesi
+  categoryScores = calculateCategoryScores(data, lastPdfData);
+  renderCategoryAssessment(categoryScores);
+  
+  // Gelir/Gider analizi
+  renderIncomeExpenseAnalysis(data, lastPdfData);
+  
+  const banksToCheck = data.bank === "all" ? Object.keys(BANKS) : [data.bank];
+  const results = banksToCheck.map(b => calculateBankSpecific(b, data, lastPdfData));
+  
+  results.sort((a,b) => {
+    const order = { "ONAY": 3, "GM": 2, "RET": 1 };
+    if(order[b.decision] !== order[a.decision]) return order[b.decision] - order[a.decision];
+    return b.confidence - a.confidence;
+  });
+  
+  currentResults = results;
+  currentCustomer = { ...data, date: new Date().toLocaleString("tr-TR"), name: fullName };
+  
+  // Algoritma analizi
+  renderAlgorithmAnalysis(data, lastPdfData, results);
+  
+  displayResults(results, data);
+}
+
+function displayResults(results, data) {
+  const best = results[0];
+  const box = el("resultBox");
+  
+  box.className = "card result-box show " + (best.decision === "ONAY" ? "result-approve" : best.decision === "GM" ? "result-gm" : "result-reject");
+  
+  const badge = el("decisionBadge");
+  badge.className = "decision-badge " + (best.decision === "ONAY" ? "decision-approve" : best.decision === "GM" ? "decision-gm" : "decision-reject");
+  badge.textContent = best.decision === "ONAY" ? "✅ ONAY" : best.decision === "GM" ? "⚠️ GM ONAYI" : "❌ RED";
+  
+  el("bestBankName").textContent = best.bankName;
+  el("decisionDate").textContent = new Date().toLocaleDateString("tr-TR");
+  el("confidencePercent").textContent = "%" + best.confidence;
+  el("confidencePercent").style.color = best.decision === "ONAY" ? "#10b981" : best.decision === "GM" ? "#f59e0b" : "#ef4444";
+  
+  const ratingClass = best.score >= 750 ? "rating-excellent" : best.score >= 650 ? "rating-good" : best.score >= 550 ? "rating-mid" : best.score >= 400 ? "rating-low" : "rating-bad";
+  el("ratingValue").innerHTML = `<span class="rating-box ${ratingClass}">${best.rating}</span>`;
+  el("ratingValue").style.display = "block";
+  
+  el("limitValue").textContent = best.limit.toLocaleString("tr-TR") + " TL";
+  el("dtiValue").textContent = "%" + best.dti;
+  el("dtiValue").style.color = parseFloat(best.dti) > 50 ? "#ef4444" : parseFloat(best.dti) > 40 ? "#f59e0b" : "#10b981";
+  el("scoreValue").textContent = best.score;
+  
+  updateCharts(results, data);
+  
+  el("resultsTable").innerHTML = results.map(r => `
+    <tr>
+      <td><strong style="color:${r.color}">${r.bankName}</strong></td>
+      <td><span style="color:${r.decision==='ONAY'?'#10b981':r.decision==='GM'?'#f59e0b':'#ef4444'};font-weight:700">${r.decision}</span></td>
+      <td>%${r.confidence}</td>
+      <td><span class="rating-box ${r.score >= 750 ? 'rating-excellent' : r.score >= 650 ? 'rating-good' : r.score >= 550 ? 'rating-mid' : 'rating-low'}">${r.rating}</span></td>
+      <td>${r.limit.toLocaleString()} TL</td>
+      <td style="font-size:12px;">${r.reasoning}</td>
+    </tr>
+  `).join("");
+  
+  if(best.decision === "RET") {
+    let html = `<div class="red-details">
+      <h3>🚨 RED Analizi ve Recovery Planı</h3>`;
+    
+    if(data.legal !== "no") {
+      html += `<div class="red-reason">
+        <span class="badge-tag" style="background:#7c2d12;color:white;">İCRA</span>
+        <div>
+          <div style="font-weight:700;">Aktif İcra/Takip Kaydı</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px;">
+            ${data.legal === "high" ? "50.000 TL üzeri icra" : data.legal === "medium" ? "10.000-50.000 TL arası icra" : "10.000 TL altı icra"} mevcut. 
+            ${BANKS[best.bank].name} için tolerans limiti: ${BANKS[best.bank].icraLimit.toLocaleString()} TL.
+          </div>
+        </div>
+      </div>`;
+    }
+    
+    if(data.findeks < 1000) {
+      html += `<div class="red-reason solution">
+        <span class="badge-tag" style="background:#f59e0b;color:black;">FIRSAT</span>
+        <div style="font-size:13px;">
+          <strong>Temiz Kayıt Avantajı:</strong> Hiç kredi kullanmadıysanız "Clean Slate" olarak Halkbank/Ziraat'e 30.000 TL altı başvuru yapın. 
+          Kredi kartı alıp düzenli kullanın, 6 ay sonra tekrar başvurun.
+        </div>
+      </div>`;
+    }
+    
+    html += `</div>`;
+    el("rejectAnalysis").innerHTML = html;
+  } else {
+    el("rejectAnalysis").innerHTML = "";
+  }
+  
+  // Print için bilgileri doldur
+  el("printName").textContent = currentCustomer.name || '-';
+  el("printTc").textContent = getMaskedTC(data.tc);
+  el("printDate").textContent = new Date().toLocaleDateString("tr-TR");
+  el("printDecision").textContent = best.decision + " (" + best.bankName + ")";
+}
+
+function updateCharts(results, data) {
+  if(charts.main) charts.main.destroy();
+  const ctx1 = el("mainChart").getContext("2d");
+  charts.main = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: results.map(r => r.bankName),
+      datasets: [{
+        label: 'Güven %',
+        data: results.map(r => r.confidence),
+        backgroundColor: results.map(r => r.decision === 'ONAY' ? '#10b981' : r.decision === 'GM' ? '#f59e0b' : '#ef4444'),
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {legend: {display: false}},
+      scales: {
+        y: {beginAtZero: true, max: 100, grid: {color: 'rgba(255,255,255,0.1)'}, ticks: {color: '#9ca3af'}},
+        x: {grid: {display: false}, ticks: {color: '#9ca3af'}}
+      }
+    }
+  });
+  
+  if(charts.radar) charts.radar.destroy();
+  const ctx2 = el("radarChart").getContext("2d");
+  charts.radar = new Chart(ctx2, {
+    type: 'radar',
+    data: {
+      labels: ['Findeks', 'Gelir', 'İstihdam', 'Ödeme Geçmişi', 'Sektör', 'Kredi Yoğunluğu'],
+      datasets: [
+        {
+          label: 'Müşteri',
+          data: [
+            (data.findeks/1900)*100,
+            Math.min((data.income/50000)*100, 100),
+            data.workDuration === '24+' ? 100 : data.workDuration === '0-6' ? 30 : 70,
+            100 - (parseInt(data.delay)*30),
+            data.job === 'public' ? 100 : data.job === 'construction' ? 40 : 70,
+            Math.max(0, 100 - (data.loanCount*15))
+          ],
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.2)'
+        },
+        {
+          label: 'Banka Beklentisi',
+          data: [70, 60, 80, 90, 60, 70],
+          borderColor: 'rgba(255,255,255,0.3)',
+          backgroundColor: 'transparent',
+          borderDash: [5,5]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          angleLines: {color: 'rgba(255,255,255,0.1)'},
+          grid: {color: 'rgba(255,255,255,0.1)'},
+          pointLabels: {color: '#9ca3af'},
+          ticks: {display: false}
+        }
+      }
+    }
+  });
+}
+
+function saveCustomer() {
+  if(!currentCustomer.tc) {
+    showError("Önce analiz yapmalısınız");
+    return;
+  }
+  
+  let records = JSON.parse(localStorage.getItem('kredi_records') || '[]');
+  const existingIndex = records.findIndex(r => r.tc === currentCustomer.tc);
+  const record = {
+    ...currentCustomer,
+    results: currentResults,
+    categoryScores: categoryScores,
+    savedAt: new Date().toISOString()
+  };
+  
+  if(existingIndex >= 0) {
+    records[existingIndex] = record;
+  } else {
+    records.push(record);
+  }
+  
+  localStorage.setItem('kredi_records', JSON.stringify(records));
+  showSuccess("Müşteri kaydı başarıyla kaydedildi");
+}
+
+function loadCustomerData() {
+  const tc = el("tc").value;
+  if(tc.length !== 11) return;
+  
+  const records = JSON.parse(localStorage.getItem('kredi_records') || '[]');
+  const record = records.find(r => r.tc === tc);
+  
+  if(record) {
+    el("fullName").value = record.name || '';
+    el("findeks").value = record.findeks || '';
+    el("income").value = record.income || '';
+    el("job").value = record.job || 'private';
+    el("customerType").value = record.customerType || 'salary';
+    updateFindexPreview();
+    showSuccess("Müşteri bilgileri yüklendi");
+  }
+}
+
+function searchCustomer() {
+  const tc = prompt("TC Kimlik No girin:");
+  if(tc && tc.length === 11) {
+    el("tc").value = tc;
+    loadCustomerData();
+    switchTab('evaluate', document.querySelector('.tab-btn'));
+  }
+}
+
+function deleteCustomer(tc) {
+  if(!confirm(`${tc} TC numaralı müşteri kaydını silmek istediğinize emin misiniz?\n\nBu işlem geri alınamaz!`)) return;
+  
+  let records = JSON.parse(localStorage.getItem('kredi_records') || '[]');
+  records = records.filter(r => r.tc !== tc);
+  localStorage.setItem('kredi_records', JSON.stringify(records));
+  loadAllHistory();
+  showSuccess("Müşteri kaydı başarıyla silindi");
+}
+
+function loadAllHistory() {
+  const records = JSON.parse(localStorage.getItem('kredi_records') || '[]');
+  const container = el("historyList");
+  
+  if(records.length === 0) {
+    container.innerHTML = '<p style="color:var(--muted);">Henüz kayıt bulunmamaktadır.</p>';
+    return;
+  }
+  
+  container.innerHTML = records.sort((a,b) => new Date(b.savedAt) - new Date(a.savedAt)).map(r => {
+    const bestResult = r.results ? r.results[0] : null;
+    return `
+      <div class="history-item">
+        <div>
+          <div style="font-weight:700;">${r.name || 'İsimsiz'}</div>
+          <div style="font-size:13px;color:var(--muted);">TC: ${getMaskedTC(r.tc)} | ${new Date(r.savedAt).toLocaleDateString('tr-TR')}</div>
+          <div style="font-size:13px;margin-top:4px;">
+            Findex: ${r.findeks} | Gelir: ${parseInt(r.income).toLocaleString()} TL
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:20px;font-weight:800;color:${bestResult?.decision === 'ONAY' ? '#10b981' : bestResult?.decision === 'GM' ? '#f59e0b' : '#ef4444'}">
+            ${bestResult?.decision || '-'}
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn btn-secondary" style="font-size:11px;padding:6px 12px;" onclick="loadHistoryRecord('${r.tc}')">Yükle</button>
+            <button class="btn btn-danger" style="font-size:11px;padding:6px 12px;" onclick="deleteCustomer('${r.tc}')">Sil</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function loadHistoryRecord(tc) {
+  const records = JSON.parse(localStorage.getItem('kredi_records') || '[]');
+  const record = records.find(r => r.tc === tc);
+  if(record) {
+    el("tc").value = record.tc;
+    el("fullName").value = record.name || '';
+    el("findeks").value = record.findeks;
+    el("income").value = record.income;
+    el("requested").value = record.requested;
+    el("job").value = record.job;
+    el("customerType").value = record.customerType;
+    el("workDuration").value = record.workDuration;
+    el("housing").value = record.housing;
+    el("loanCount").value = record.loanCount;
+    el("delay").value = record.delay;
+    el("recentReject").value = record.reject;
+    el("legalFollow").value = record.legal || 'no';
+    
+    updateFindexPreview();
+    switchTab('evaluate', document.querySelectorAll('.tab-btn')[0]);
+    showSuccess("Kayıt yüklendi");
+  }
+}
+
+function searchHistory() {
+  const searchTerm = el("searchTcInput").value.toLowerCase();
+  if(!searchTerm) return;
+  
+  const records = JSON.parse(localStorage.getItem('kredi_records') || '[]');
+  const filtered = records.filter(r => 
+    r.tc.includes(searchTerm) || 
+    (r.name && r.name.toLowerCase().includes(searchTerm))
+  );
+  
+  const container = el("historyList");
+  if(filtered.length === 0) {
+    container.innerHTML = '<p style="color:var(--muted);">Sonuç bulunamadı.</p>';
+    return;
+  }
+  
+  container.innerHTML = filtered.map(r => {
+    const bestResult = r.results ? r.results[0] : null;
+    return `
+      <div class="history-item">
+        <div>
+          <div style="font-weight:700;">${r.name || 'İsimsiz'}</div>
+          <div style="font-size:13px;color:var(--muted);">TC: ${getMaskedTC(r.tc)}</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" onclick="loadHistoryRecord('${r.tc}')">Yükle</button>
+          <button class="btn btn-danger" onclick="deleteCustomer('${r.tc}')">Sil</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================
+// PDF İŞLEME FONKSİYONLARI
+// ============================================
+async function processFindexPDF(input) {
+  const file = input.files[0];
+  if(!file) return;
+  
+  if(file.type !== 'application/pdf') {
+    showError("Lütfen geçerli bir PDF dosyası seçin");
+    input.value = '';
+    return;
+  }
+  
+  const debugBox = el("debugBox");
+  if(debugBox) debugBox.innerHTML = "";
+  
+  el("pdfProcessingStatus").style.display = "block";
+  debugLog("PDF işleme başladı: " + file.name);
+  
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+    
+    let fullText = "";
+    const maxPages = Math.min(pdf.numPages, 15);
+    
+    debugLog("Toplam sayfa: " + pdf.numPages + ", İşlenecek: " + maxPages);
+    
+    for(let i = 1; i <= maxPages; i++) {
+      try {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(" ");
+        fullText += pageText + "\n";
+        debugLog("Sayfa " + i + " okundu");
+      } catch(e) {
+        debugLog("Sayfa " + i + " hatası: " + e.message);
+      }
+    }
+    
+    fullText = fullText.replace(/\s+/g, ' ').trim();
+    debugLog("Metin çıkarımı tamamlandı, uzunluk: " + fullText.length);
+    
+    // PDF VERİ ÇIKARIMI
+    const pdfData = extractPdfData(fullText);
+    lastPdfData = pdfData;
+    
+    debugLog("Çıkarılan veriler: " + JSON.stringify(pdfData));
+    
+    if(pdfData.findeksScore) {
+      displayPdfDetails(pdfData);
+      fillEvaluationForm(pdfData);
+      showSuccess(`✅ PDF Analiz Tamamlandı! Findeks: ${pdfData.findeksScore}, Toplam Borç: ${pdfData.totalDebt?.toLocaleString()} TL`);
+    } else {
+      showError("PDF'de Findeks skoru tespit edilemedi. Lütfen manuel olarak girin.");
+    }
+    
+  } catch(error) {
+    console.error("PDF okuma hatası:", error);
+    debugLog("HATA: " + error.message);
+    showError("PDF okunurken hata oluştu: " + error.message);
+  } finally {
+    el("pdfProcessingStatus").style.display = "none";
+    input.value = '';
+  }
+}
+
+function extractPdfData(text) {
+  const data = {
+    findeksScore: null,
+    totalLimit: 0,
+    totalDebt: 0,
+    productCount: 0,
+    financialInstitutions: 0,
+    delayStatus: 'clean',
+    maxDelayDays: 0,
+    lastFollowDate: null,
+    utilizationRate: 0,
+    creditCards: [],
+    kmh: [],
+    loans: []
+  };
+  
+  // 1. Findeks Skoru
+  const findeksPatterns = [
+    /Findeks\s*Kredi\s*Notunuz.*?[#]?\s*(\d{3,4})/i,
+    /[#]\s*(\d{3,4})\s*Findeks/i,
+    /Findeks\s*Kredi\s*Notu['\s]*(\d{3,4})/i,
+    /Risk\s*Skor[uü]?\s*:?\s*(\d{1,4})/i,
+    /Kredi\s*Notunuz\s*(\d{3,4})/i
+  ];
+  
+  for(let pattern of findeksPatterns) {
+    const match = text.match(pattern);
+    if(match && match[1]) {
+      const num = parseInt(match[1]);
+      if(num >= 1 && num <= 1900) {
+        data.findeksScore = num;
+        break;
+      }
+    }
+  }
+  
+  // 2. Limitler Toplamı (D3)
+  const limitMatch = text.match(/Limitler\s*Toplam[iı]\s*\(?D3\)?\s*[:\-]?\s*([\d\.,]+)\s*TL/i);
+  if(limitMatch) {
+    data.totalLimit = parseTurkishNumber(limitMatch[1]);
+  }
+  
+  // 3. Borçlar Toplamı (D4)
+  const debtMatch = text.match(/Bor[cç]lar\s*Toplam[iı]\s*\(?D4\)?\s*[:\-]?\s*([\d\.,]+)\s*TL/i);
+  if(debtMatch) {
+    data.totalDebt = parseTurkishNumber(debtMatch[1]);
+  }
+  
+  // 4. Finans Kuruluşu Sayısı (D1)
+  const instMatch = text.match(/Finans\s*Kurulu[sş]u\s*Say[iı]s[iı]\s*\(?D1\)?\s*[:\-]?\s*(\d+)/i);
+  if(instMatch) {
+    data.financialInstitutions = parseInt(instMatch[1]);
+  }
+  
+  // 5. Kredili Ürün Sayısı (D2)
+  const productMatch = text.match(/Kredili\s*[ÜU]r[üu]nler\s*\(?D2\)?\s*[:\-]?\s*(\d+)/i);
+  if(productMatch) {
+    data.productCount = parseInt(productMatch[1]);
+  }
+  
+  // 6. Gecikme durumu
+  const delayMatch = text.match(/Gecikmedeki\s*Hesap\s*Say[iı]s[iı]\s*\(?E1\)?\s*[:\-]?\s*(\d+|-)/i);
+  if(delayMatch && delayMatch[1] !== '-' && parseInt(delayMatch[1]) > 0) {
+    data.delayStatus = 'delayed';
+    data.delayedAccounts = parseInt(delayMatch[1]);
+  }
+  
+  // 7. En büyük gecikme günü
+  const maxDelayMatch = text.match(/En\s*B[üu]y[üu]k\s*Gecikme\s*G[üu]n\s*Say[iı]s[iı]\s*[:\-]?\s*(\d+|-)/i);
+  if(maxDelayMatch && maxDelayMatch[1] !== '-') {
+    data.maxDelayDays = parseInt(maxDelayMatch[1]);
+  }
+  
+  // 8. Limit Kullanım Oranı
+  if(data.totalLimit > 0) {
+    data.utilizationRate = Math.round((data.totalDebt / data.totalLimit) * 100);
+  }
+  
+  // 9. Kredi Kartı detayları
+  extractCreditCardDetails(text, data);
+  
+  // 10. KMH detayları
+  extractKMHDetails(text, data);
+  
+  return data;
+}
+
+function parseTurkishNumber(str) {
+  // Türkçe sayı formatını parse et: 1.234.567,89 -> 1234567.89
+  return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+}
+
+function extractCreditCardDetails(text, data) {
+  // Kredi kartı bölümlerini bul
+  const cardSectionPattern = /Kredi\s*Kart[ıi].*?Limit\s*[:\-]?\s*([\d\.,]+)\s*TL.*?Bor[cç]\s*[:\-]?\s*([\d\.,-]+)\s*TL/gi;
+  let match;
+  
+  while((match = cardSectionPattern.exec(text)) !== null) {
+    const limit = parseTurkishNumber(match[1]);
+    const debtStr = match[2];
+    const debt = debtStr === '-' ? 0 : parseTurkishNumber(debtStr);
+    
+    data.creditCards.push({
+      limit: limit,
+      debt: debt,
+      utilization: limit > 0 ? Math.round((debt / limit) * 100) : 0
+    });
+  }
+}
+
+function extractKMHDetails(text, data) {
+  // KMH/Kredili Mevduat Hesabı arama
+  const kmhPatterns = [
+    /Kredili\s*Mevduat\s*Hesab[ıi].*?Limit\s*[:\-]?\s*([\d\.,]+)\s*TL.*?Bor[cç]\s*[:\-]?\s*([\d\.,]+)\s*TL/gi,
+    /KMH.*?Limit\s*[:\-]?\s*([\d\.,]+)\s*TL.*?Kullan[ıi]lan\s*[:\-]?\s*([\d\.,]+)\s*TL/gi
+  ];
+  
+  for(const pattern of kmhPatterns) {
+    let match;
+    while((match = pattern.exec(text)) !== null) {
+      const limit = parseTurkishNumber(match[1]);
+      const used = parseTurkishNumber(match[2]);
+      
+      data.kmh.push({
+        type: 'Kredili Mevduat Hesabı (KMH)',
+        limit: limit,
+        used: used,
+        available: limit - used,
+        utilization: Math.round((used / limit) * 100)
+      });
+    }
+  }
+}
+
+function displayPdfDetails(data) {
+  const container = el("pdfDetailReport");
+  
+  let delayHtml = '';
+  if(data.delayStatus === 'delayed') {
+    delayHtml = `<div class="pdf-alert">⚠️ <strong>Dikkat:</strong> Aktif gecikme bulunmaktadır (${data.delayedAccounts} hesap). En büyük gecikme: ${data.maxDelayDays} gün.</div>`;
+  } else {
+    delayHtml = `<div class="pdf-alert" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#a7f3d0;">✅ Ödeme performansı temiz. Aktif gecikme bulunmamaktadır.</div>`;
+  }
+  
+  const utilColor = data.utilizationRate > 90 ? '#ef4444' : data.utilizationRate > 70 ? '#f59e0b' : '#10b981';
+  const utilBg = data.utilizationRate > 90 ? 'linear-gradient(90deg, #ef4444, #dc2626)' : 
+                 data.utilizationRate > 70 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 
+                 'linear-gradient(90deg, #10b981, #059669)';
+  
+  container.innerHTML = `
+    <div class="pdf-detail-card">
+      <h4>📊 Findeks Kredi Notu ve Özet</h4>
+      <div class="pdf-detail-grid">
+        <div class="pdf-detail-item">
+          <span class="pdf-detail-label">Findeks Skoru</span>
+          <span class="pdf-detail-value" style="color:${data.findeksScore >= 1400 ? '#10b981' : data.findeksScore >= 1000 ? '#f59e0b' : '#ef4444'}; font-size:24px;">${data.findeksScore}</span>
+        </div>
+        <div class="pdf-detail-item">
+          <span class="pdf-detail-label">Risk Grubu</span>
+          <span class="pdf-detail-value">${getRiskGroup(data.findeksScore)}</span>
+        </div>
+        <div class="pdf-detail-item">
+          <span class="pdf-detail-label">Toplam Limit</span>
+          <span class="pdf-detail-value">${data.totalLimit.toLocaleString()} TL</span>
+        </div>
+        <div class="pdf-detail-item ${data.totalDebt > 100000 ? 'warning' : ''}">
+          <span class="pdf-detail-label">Toplam Borç</span>
+          <span class="pdf-detail-value">${data.totalDebt.toLocaleString()} TL</span>
+        </div>
+        <div class="pdf-detail-item">
+          <span class="pdf-detail-label">Kredili Ürün Sayısı</span>
+          <span class="pdf-detail-value">${data.productCount}</span>
+        </div>
+        <div class="pdf-detail-item">
+          <span class="pdf-detail-label">Banka Sayısı</span>
+          <span class="pdf-detail-value">${data.financialInstitutions}</span>
+        </div>
+      </div>
+      
+      <div style="margin-top:16px; background:rgba(0,0,0,0.2); padding:16px; border-radius:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:13px; color:var(--muted);">Genel Limit Kullanım Oranı</span>
+          <span style="font-weight:800; color:${utilColor}; font-size:18px;">%${data.utilizationRate}</span>
+        </div>
+        <div class="progress-bar-bg" style="height:32px;">
+          <div class="progress-bar-fill" style="width:${Math.min(data.utilizationRate, 100)}%; background:${utilBg}; font-size:14px;">
+            ${data.utilizationRate > 15 ? '%' + data.utilizationRate : ''}
+          </div>
+        </div>
+        <div style="margin-top:8px; font-size:12px; color:var(--muted);">
+          ${data.utilizationRate > 90 ? '⚠️ Limit kullanım oranı çok yüksek! Kredi başvurusu olumsuz etkilenebilir.' : 
+            data.utilizationRate > 70 ? '⚠️ Yüksek limit kullanımı mevcut.' : 
+            '✅ Limit kullanım oranı sağlıklı seviyede.'}
+        </div>
+      </div>
+      
+      ${delayHtml}
+    </div>
+    
+    <div style="text-align:center;margin:16px 0;">
+      <button class="btn btn-primary" onclick="usePdfDataForEvaluation()">
+        📋 Bu Verileri Değerlendirme Formuna Aktar
+      </button>
+    </div>
+  `;
+}
+
+function getRiskGroup(score) {
+  if(score >= 1700) return "A (Mükemmel)";
+  if(score >= 1400) return "B (İyi)";
+  if(score >= 1200) return "C (Orta)";
+  if(score >= 1000) return "D (Riskli)";
+  return "E (Çok Riskli)";
+}
+
+function fillEvaluationForm(data) {
+  if(data.findeksScore) {
+    el("findeks").value = data.findeksScore;
+    updateFindexPreview();
+  }
+  
+  const totalProducts = data.productCount || (data.creditCards?.length || 0) + (data.kmh?.length || 0);
+  if(totalProducts > 0) {
+    el("loanCount").value = totalProducts;
+  }
+  
+  if(data.totalDebt > 0) {
+    const estimatedMonthly = Math.round(data.totalDebt * 0.03);
+    el("currentInst").value = estimatedMonthly;
+  }
+  
+  if(data.maxDelayDays > 0 && data.maxDelayDays <= 30) {
+    el("delay").value = "1";
+  } else if(data.maxDelayDays > 30) {
+    el("delay").value = "3";
+  } else {
+    el("delay").value = "0";
+  }
+  
+  el("autoFillInfo").style.display = "block";
+  el("autoFillInfo").innerHTML = `
+    <strong>✅ PDF'den Otomatik Doldurulan Bilgiler:</strong><br>
+    • Findeks Skoru: <b>${data.findeksScore}</b><br>
+    • Kredili Ürün Sayısı: <b>${totalProducts} adet</b><br>
+    • Toplam Borç: <b>${data.totalDebt?.toLocaleString()} TL</b><br>
+    • Limit Kullanım: <b>%${data.utilizationRate}</b><br>
+    <small style="opacity:0.8;">* Gelir bilgisini manuel girmeyi unutmayın!</small>
+  `;
+}
+
+function usePdfDataForEvaluation() {
+  if(lastPdfData) {
+    fillEvaluationForm(lastPdfData);
+    switchTab('evaluate', document.querySelectorAll('.tab-btn')[0]);
+    showSuccess("PDF verileri Değerlendirme formuna aktarıldı. Lütfen gelir bilgisini girerek analizi tamamlayın.");
+  }
+}
+
+function analyzeFindexDetail() {
+  const score = parseInt(el("analyzeFindex").value);
+  if(!score || score < 0 || score > 1900) {
+    alert("Geçerli findeks girin (0-1900 arası)");
+    return;
+  }
+  
+  let html = `<div class="findex-analysis" style="display:block;">`;
+  
+  let group, color, banks, advice;
+  if(score >= 1700) {
+    group = "A (Mükemmel)";
+    color = "#10b981";
+    banks = "Tüm bankalar (Akbank, Garanti dahil)";
+    advice = "En yüksek limitler, en düşük faizler. 6-8 maaş limit çarpanı.";
+  } else if(score >= 1400) {
+    group = "B (İyi)";
+    color = "#3b82f6";
+    banks = "Tüm bankalar";
+    advice = "Standart onay. 5-6 maaş limit. Akbank dışında her yerde rahat onay.";
+  } else if(score >= 1200) {
+    group = "C (Orta)";
+    color = "#f59e0b";
+    banks = "Halkbank, Ziraat, Vakıfbank, İş Bankası";
+    advice = "GM ile onay. 4-5 maaş limit. Dijital bankalarda zorlanabilirsiniz.";
+  } else if(score >= 1000) {
+    group = "D (Riskli)";
+    color = "#ef4444";
+    banks = "Sadece Halkbank, Ziraat (Kamu bankaları)";
+    advice = "Temel ihtiyaç kredisi. 3-4 maaş limit. Kefil/teminat gerekli olabilir.";
+  } else {
+    group = "E (Çok Riskli)";
+    color = "#7c2d12";
+    banks = "Kredi almanız çok zor";
+    advice = "Önce findeksinizi iyileştirin. 6-12 ay düzgün ödeme yapın.";
+  }
+  
+  html += `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div>
+        <div style="font-size:24px;font-weight:800;color:${color}">${score}</div>
+        <div style="font-size:14px;color:var(--muted);">Risk Grubu: ${group}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:12px;color:var(--muted);">Başvuru Yapabileceğiniz Bankalar</div>
+        <div style="font-size:14px;font-weight:600;margin-top:4px;">${banks}</div>
+      </div>
+    </div>
+    
+    <div class="findex-bar" style="margin-bottom:16px;">
+      <div class="findex-fill" style="width:${(score/1900*100)}%;background:${color};"></div>
+    </div>
+    
+    <div style="background:rgba(0,0,0,0.2);padding:16px;border-radius:8px;margin-bottom:16px;">
+      <div style="font-weight:700;margin-bottom:8px;">💡 Bankacı Tavsiyesi</div>
+      <div style="font-size:13px;line-height:1.6;">${advice}</div>
+    </div>
+    
+    <h4 style="margin:16px 0 12px 0;">Banka Bazlı Değerlendirme</h4>
+    <table style="margin-top:0;">
+      <thead>
+        <tr>
+          <th>Banka</th>
+          <th>Durum</th>
+          <th>Tahmini Limit</th>
+          <th>Not</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${Object.entries(BANKS).map(([key,bank]) => {
+          let status, limitMult, note;
+          if(score >= bank.minFindeks + 200) {
+            status = "✅ Onay";
+            limitMult = bank.multipliers.limit;
+          } else if(score >= bank.minFindeks) {
+            status = "⚠️ GM";
+            limitMult = bank.multipliers.limit * 0.7;
+          } else {
+            status = "❌ Red";
+            limitMult = 0;
+          }
+          return `
+            <tr>
+              <td><strong style="color:${bank.color}">${bank.name}</strong></td>
+              <td>${status}</td>
+              <td>${limitMult > 0 ? (limitMult + ' maaş') : '-'}</td>
+              <td style="font-size:12px;">${bank.features[0]}</td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`;
+  
+  el("findexDetailResult").innerHTML = html;
+}
+
+document.addEventListener('keypress', function(e) {
+  if(e.key === 'Enter') {
+    if(el("loginScreen").style.display !== "none") doLogin();
+  }
+});
+</script>
+</body>
+</html>
